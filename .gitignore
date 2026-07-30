@@ -271,7 +271,4 @@ $RECYCLE_BIN/
 
 ### Project-specific ###
 
-# Ignore project test files
-core/test_*.py
-TESTS/
 
