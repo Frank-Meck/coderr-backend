@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Coderr – API First ER Diagram</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: #ececec;
+            padding: 40px;
+        }
+
+        #page {
+            position: relative;
+            width: 1800px;
+            height: 1150px;
+            margin: auto;
+            background: white;
+            border: 1px solid #d5d5d5;
+            box-shadow: 0 0 25px rgba(0, 0, 0, .15);
+        }
+
+        h1 {
+            padding-top: 20px;
+            text-align: center;
+            font-size: 34px;
+            color: #333;
+            letter-spacing: .5px;
+        }
+
+        .project {
+            position: absolute;
+            top: 72px;
+            left: 790px;
+            font-size: 30px;
+            color: #d62828;
+            font-weight: bold;
+        }
+
+        /* ---------- Tabellen ---------- */
+
+        .entity {
+            position: absolute;
+            width: 280px;
+            background: #fff;
+            border: 2px solid #555;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 3px 3px 12px rgba(0, 0, 0, .12);
+        }
+
+        .header {
+            padding: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+        }
+
+        .users {
+            background: #4F81BD;
+        }
+
+        .offers {
+            background: #5DAA48;
+        }
+
+        .orders {
+            background: #F2B705;
+            color: black;
+        }
+
+        .reviews {
+            background: #C0504D;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 8px 12px;
+            border-top: 1px solid #e4e4e4;
+            font-size: 15px;
+        }
+
+        .pk {
+            font-weight: bold;
+            color: #0B5394;
+        }
+
+        .fk {
+            font-weight: bold;
+            color: #2E8B57;
+        }
+
+        /* ---------- Beziehungen ---------- */
+
+        svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .relationship {
+            stroke: #555;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .dashed {
+            stroke-dasharray: 8 6;
+        }
+
+        .cardinality {
+            font-size: 17px;
+            font-weight: bold;
+            fill: #333;
+        }
+
+        .legend {
+            position: absolute;
+            right: 40px;
+            bottom: 200px;
+            width: 340px;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            background: #fafafa;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .legend h3 {
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-align: center;
+            border-bottom: 3px double #c5baba;
+        }
+
+        .legend p {
+            margin: 5px 0;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="page">
+
+        <h1>API First Entity Relationship Diagram</h1>
+
+        <div class="project">( Coderr )</div>
+
+        <!-- =====================================================
+     SVG Beziehungen
+====================================================== -->
+
+        <svg>
+            <!-- =====================================================
+        USER 1:1 PROFILE
+    ====================================================== -->
+
+            <polyline points="560,315 560,545 440,545 440,600" class="relationship" />
+
+            <text x="445" y="540" class="cardinality">
+                1 (user) 1
+            </text>
+
+        </svg>
+
+        <!-- =====================================================
+     USER
+====================================================== -->
+
+        <div class="entity" style="left:520px; top:180px;">
+
+            <div class="header users">
+                User
+            </div>
+
+            <table>
+
+                <tr>
+                    <td class="pk">🔑 PK id</td>
+                </tr>
+
+                <tr>
+                    <td>username</td>
+                </tr>
+
+                <tr>
+                    <td>email</td>
+                </tr>
+
+                <tr>
+                    <td>password</td>
+                </tr>
+
+                <tr>
+                    <td>type</td>
+                </tr>
+
+                <tr>
+                    <td>created_at</td>
+                </tr>
+
+                <tr>
+                    <td>updated_at</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <!-- =====================================================
+     PROFILE
+====================================================== -->
+
+        <div class="entity" style="left:300px; top:600px;">
+
+            <div class="header users">
+                Profile
+            </div>
+
+            <table>
+
+                <tr>
+                    <td class="pk">
+                        🔑 PK id
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="fk">
+                        🔗 FK user_id
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>first_name</td>
+                </tr>
+
+                <tr>
+                    <td>last_name</td>
+                </tr>
+
+                <tr>
+                    <td>file</td>
+                </tr>
+
+                <tr>
+                    <td>uploaded_at</td>
+                </tr>
+
+                <tr>
+                    <td>location</td>
+                </tr>
+
+                <tr>
+                    <td>tel</td>
+                </tr>
+
+                <tr>
+                    <td>description</td>
+                </tr>
+
+                <tr>
+                    <td>working_hours</td>
+                </tr>
+
+                <tr>
+                    <td>created_at</td>
+                </tr>
+
+                <tr>
+                    <td>updated_at</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <svg>
+
+            <!-- =====================================================
+        USER 1:N OFFER
+    ====================================================== -->
+
+            <line x1="800" y1="220" x2="1040" y2="220" class="relationship" />
+
+            <text x="835" y="212" class="cardinality">
+                1 (business) N
+            </text>
+
+        </svg>
+
+        <!-- =====================================================
+     OFFER
+====================================================== -->
+
+        <div class="entity" style="left:1040px; top:180px;">
+
+            <div class="header offers">
+                Offer
+            </div>
+
+            <table>
+
+                <tr>
+                    <td class="pk">
+                        🔑 PK id
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="fk">
+                        🔗 FK business_id
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>title</td>
+                </tr>
+
+                <tr>
+                    <td>image</td>
+                </tr>
+
+                <tr>
+                    <td>description</td>
+                </tr>
+
+                <tr>
+                    <td>created_at</td>
+                </tr>
+
+                <tr>
+                    <td>updated_at</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <!-- =====================================================
+     OFFER DETAIL
+====================================================== -->
+
+        <div class="entity" style="left:1040px; top:600px;">
+
+            <div class="header offers">
+                OfferDetail
+            </div>
+
+            <table>
+
+                <tr>
+                    <td class="pk">
+                        🔑 PK id
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="fk">
+                        🔗 FK offer_id
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>offer_type</td>
+                </tr>
+
+                <tr>
+                    <td>title</td>
+                </tr>
+
+                <tr>
+                    <td>price</td>
+                </tr>
+
+                <tr>
+                    <td>delivery_time_in_days</td>
+                </tr>
+
+                <tr>
+                    <td>revisions</td>
+                </tr>
+
+                <tr>
+                    <td>features (JSON)</td>
+                </tr>
+
+                <tr>
+                    <td>created_at</td>
+                </tr>
+
+                <tr>
+                    <td>updated_at</td>
+                </tr>
+
+            </table>
+
+        </div>
+        <!-- =====================================================
+     RESTLICHE BEZIEHUNGEN
+====================================================== -->
+
+        <svg>
+
+            <!-- =====================================================
+        USER(customer) 1:N ORDER
+    ====================================================== -->
+
+            <polyline points="600,493 600,735 660,735" class="relationship" />
+
+            <text x="637" y="540" class="cardinality">
+                1 (customer) N
+            </text>
+
+            <!-- =====================================================
+        OFFER 1:N OFFERDETAIL
+    ====================================================== -->
+
+            <line x1="1180" y1="496
+            " x2="1180" y2="600" class="relationship" />
+
+            <text x="1188" y="550" class="cardinality">
+                1 (offer) N
+            </text>
+
+
+            <!-- =====================================================
+        USER(business) 1:N ORDER
+    ====================================================== -->
+
+            <polyline points="635,493 635,705 660,705" class="relationship" />
+
+            <text x="605" y="585" class="cardinality">
+                1 (business) N
+            </text>
+
+            <!-- =====================================================
+        USER(reviewer) 1:N REVIEW
+    ====================================================== -->
+
+            <line x1="520" y1="220" x2="330" y2="220" class="relationship" />
+
+            <text x="355" y="212" class="cardinality">
+                1 (reviewer) N
+            </text>
+
+            <!-- =====================================================
+        USER(business) 1:N REVIEW
+    ====================================================== -->
+
+            <line x1="520" y1="280" x2="330" y2="280" class="relationship" />
+
+            <text x="355" y="272" class="cardinality">
+                1 (business) N
+            </text>
+
+            <!-- =====================================================
+    OFFERDETAIL -> ORDER
+    (fachliche Beziehung)
+====================================================== -->
+
+            <polyline points="1040,740 980,740 980,665 940,665" class="relationship dashed" />
+
+            <text x="945" y="700" class="cardinality">
+                erstellt aus
+            </text>
+            <text x="945" y="720" class="cardinality">
+                OfferDetail
+            </text>
+
+
+
+            <!-- =====================================================
+ OFFER -> ORDER
+ fachliche Beziehung
+====================================================== -->
+
+            <polyline points="1180,494 1180,560 980,560 980,665" class="relationship dashed" />
+
+            <text x="1000" y="550" class="cardinality">
+                Offer Quelle
+            </text>
+
+        </svg>
+
+        <!-- =====================================================
+     REVIEW
+====================================================== -->
+
+        <div class="entity" style="left:50px; top:180px;">
+
+            <div class="header reviews">
+                Review
+            </div>
+
+            <table>
+
+                <tr>
+                    <td class="pk">🔑 PK id</td>
+                </tr>
+
+                <tr>
+                    <td class="fk">🔗 FK business_id</td>
+                </tr>
+
+                <tr>
+                    <td class="fk">🔗 FK reviewer_id</td>
+                </tr>
+
+                <tr>
+                    <td>rating</td>
+                </tr>
+
+                <tr>
+                    <td>description</td>
+                </tr>
+
+                <tr>
+                    <td>created_at</td>
+                </tr>
+
+                <tr>
+                    <td>updated_at</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <!-- =====================================================
+     ORDER
+====================================================== -->
+
+        <div class="entity" style="left:660px; top:600px;">
+
+            <div class="header orders">
+                Order
+            </div>
+
+            <table>
+
+                <tr>
+                    <td class="pk">🔑 PK id</td>
+                </tr>
+
+                <tr>
+                    <td class="fk">🔗 FK customer_id</td>
+                </tr>
+
+                <tr>
+                    <td class="fk">🔗 FK business_id</td>
+                </tr>
+
+                <tr>
+                    <td>offer_type</td>
+                </tr>
+
+                <tr>
+                    <td>title</td>
+                </tr>
+
+                <tr>
+                    <td>price</td>
+                </tr>
+
+                <tr>
+                    <td>delivery_time_in_days</td>
+                </tr>
+
+                <tr>
+                    <td>revisions</td>
+                </tr>
+
+                <tr>
+                    <td>features (JSON)</td>
+                </tr>
+
+                <tr>
+                    <td>status</td>
+                </tr>
+
+                <tr>
+                    <td>created_at</td>
+                </tr>
+
+                <tr>
+                    <td>updated_at</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        <!-- =====================================================
+     LEGENDE
+====================================================== -->
+
+        <div class="legend">
+
+            <h3>Legende</h3>
+
+            <p><strong>🔑 PK</strong> = Primary Key</p>
+
+            <p><strong>🔗 FK</strong> = Foreign Key</p>
+
+            <p>────── = Datenbankbeziehung</p>
+
+            <p>- - - - = Fachliche Beziehung</p>
+
+            <hr style="margin:12px 0;">
+
+
+            <p><strong>API-Hinweise:</strong></p>
+
+            <p>• User besitzt genau eine Profile-Instanz (1:1).</p>
+
+            <p>• Ein Business kann mehrere Offers erstellen (1:N).</p>
+
+            <p>• Jedes Offer besitzt genau drei OfferDetails.</p>
+
+            <p>• Eine Order wird aus einem OfferDetail erstellt.</p>
+
+            <p>• Ein Kunde kann mehrere Orders erstellen.</p>
+
+            <p>• Ein Business kann mehrere Orders erhalten.</p>
+
+            <p>• Ein User kann ein Business nur einmal bewerten.</p>
+
+            <p>• Review: UNIQUE(reviewer_id, business_id).</p>
+
+            <p>• features werden als JSONField gespeichert.</p>
+
+
+            <hr style="margin:12px 0;">
+
+
+            <p><strong>API-Endpunkte:</strong></p>
+
+            <p>• /api/users/</p>
+
+            <p>• /api/profile/</p>
+
+            <p>• /api/offers/</p>
+
+            <p>• /api/offerdetails/</p>
+
+            <p>• /api/orders/</p>
+
+            <p>• /api/reviews/</p>
+
+
+            <hr style="margin:12px 0;">
+
+
+            <p><strong>HTTP-Methoden:</strong></p>
+
+            <p>• GET → Daten abrufen</p>
+
+            <p>• POST → Daten erstellen</p>
+
+            <p>• PATCH → Daten ändern</p>
+
+            <p>• DELETE → Daten löschen</p>
+
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

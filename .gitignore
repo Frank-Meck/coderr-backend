@@ -275,7 +275,3 @@ $RECYCLE_BIN/
 core/test_*.py
 TESTS/
 
-### Project-specific ###
-
-# Local model overview file
-index.html
