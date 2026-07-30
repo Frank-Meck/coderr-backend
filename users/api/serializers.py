@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.models import User
+from users.models import User, Profile
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -44,3 +44,23 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return User.objects.create_user(
             **validated_data
         )
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+
+    username = serializers.CharField(
+        source="user.username",
+        read_only=True
+    )
+
+    class Meta:
+        model = Profile
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "location",
+            "tel",
+            "description",
+            "uploaded_at",
+        ]

@@ -11,14 +11,6 @@ class UserModelTest(TestCase):
     """
 
     def test_create_user(self):
-        """
-        Test if a user can be created using the custom User model.
-
-        Verifies:
-        - username is stored correctly
-        - user type is assigned correctly
-        - password hashing works correctly
-        """
 
         user = User.objects.create_user(
             username="testuser",
@@ -42,16 +34,6 @@ class UserModelTest(TestCase):
         )
 
     def test_user_profile_relation(self):
-        """
-        Test the OneToOne relationship between User and Profile.
-
-        Verifies:
-        - profile references the correct user
-        - user can access the profile through related_name
-
-        Relationship:
-            User (1) -------- (1) Profile
-        """
 
         user = User.objects.create_user(
             username="jane",
@@ -59,10 +41,8 @@ class UserModelTest(TestCase):
             type="customer"
         )
 
-        profile = Profile.objects.create(
-            user=user,
-            first_name="Jane",
-            last_name="Doe"
+        profile = Profile.objects.get(
+            user=user
         )
 
         self.assertEqual(
@@ -76,17 +56,6 @@ class UserModelTest(TestCase):
         )
 
     def test_profile_optional_fields(self):
-        """
-        Test that optional profile fields allow empty values.
-
-        API requirement:
-        Empty profile fields should return empty strings instead of NULL values.
-
-        Verifies:
-        - location
-        - telephone number
-        - description
-        """
 
         user = User.objects.create_user(
             username="customer1",
@@ -94,10 +63,8 @@ class UserModelTest(TestCase):
             type="customer"
         )
 
-        profile = Profile.objects.create(
-            user=user,
-            first_name="",
-            last_name=""
+        profile = Profile.objects.get(
+            user=user
         )
 
         self.assertEqual(
@@ -116,12 +83,6 @@ class UserModelTest(TestCase):
         )
 
     def test_user_type_choices(self):
-        """
-        Test if business users can be created correctly.
-
-        Verifies:
-        - the user type field accepts the "business" choice
-        """
 
         user = User.objects.create_user(
             username="business",
@@ -135,12 +96,6 @@ class UserModelTest(TestCase):
         )
 
     def test_profile_str(self):
-        """
-        Test the string representation of a Profile instance.
-
-        Verifies:
-        - __str__ returns the user's full name
-        """
 
         user = User.objects.create_user(
             username="max",
@@ -148,11 +103,13 @@ class UserModelTest(TestCase):
             type="business"
         )
 
-        profile = Profile.objects.create(
-            user=user,
-            first_name="Max",
-            last_name="Mustermann"
+        profile = Profile.objects.get(
+            user=user
         )
+
+        profile.first_name = "Max"
+        profile.last_name = "Mustermann"
+        profile.save()
 
         self.assertEqual(
             str(profile),
