@@ -193,9 +193,9 @@ Das Frontend kommuniziert über REST-Endpunkte mit dem Backend.
 
 # 🗄 Datenmodell
 
-Das Datenmodell ist als ER-Diagramm dokumentiert:
+Das vollständige ER-Diagramm:
 
-[ER-Diagramm anzeigen](./docs/er-diagram.html)
+![ER-Diagramm](./docs/er-diagram.png)
 
 ---
 
