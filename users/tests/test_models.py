@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from users.models import User, Profile
 
 
@@ -6,11 +7,19 @@ class UserModelTest(TestCase):
     """
     Test suite for the custom User and Profile models.
 
-    Verifies user creation, profile relationships, optional fields,
-    user types, and string representations.
+    Verifies:
+    - user creation
+    - password hashing
+    - user types
+    - profile relationship
+    - profile optional fields
+    - string representation
     """
 
     def test_create_user(self):
+        """
+        Test if a user can be created using the custom User model.
+        """
 
         user = User.objects.create_user(
             username="testuser",
@@ -25,15 +34,25 @@ class UserModelTest(TestCase):
         )
 
         self.assertEqual(
+            user.email,
+            "test@test.de"
+        )
+
+        self.assertEqual(
             user.type,
             "customer"
         )
 
         self.assertTrue(
-            user.check_password("password123")
+            user.check_password(
+                "password123"
+            )
         )
 
     def test_user_profile_relation(self):
+        """
+        Test the OneToOne relationship between User and Profile.
+        """
 
         user = User.objects.create_user(
             username="jane",
@@ -41,9 +60,11 @@ class UserModelTest(TestCase):
             type="customer"
         )
 
-        profile = Profile.objects.get(
-            user=user
-        )
+        profile = user.profile
+
+        profile.first_name = "Jane"
+        profile.last_name = "Doe"
+        profile.save()
 
         self.assertEqual(
             profile.user,
@@ -56,6 +77,9 @@ class UserModelTest(TestCase):
         )
 
     def test_profile_optional_fields(self):
+        """
+        Test that optional profile fields allow empty values.
+        """
 
         user = User.objects.create_user(
             username="customer1",
@@ -63,9 +87,7 @@ class UserModelTest(TestCase):
             type="customer"
         )
 
-        profile = Profile.objects.get(
-            user=user
-        )
+        profile = user.profile
 
         self.assertEqual(
             profile.location,
@@ -82,7 +104,26 @@ class UserModelTest(TestCase):
             ""
         )
 
-    def test_user_type_choices(self):
+    def test_user_type_customer(self):
+        """
+        Test customer user type.
+        """
+
+        user = User.objects.create_user(
+            username="customer",
+            password="password123",
+            type="customer"
+        )
+
+        self.assertEqual(
+            user.type,
+            "customer"
+        )
+
+    def test_user_type_business(self):
+        """
+        Test business user type.
+        """
 
         user = User.objects.create_user(
             username="business",
@@ -96,6 +137,9 @@ class UserModelTest(TestCase):
         )
 
     def test_profile_str(self):
+        """
+        Test the string representation of Profile.
+        """
 
         user = User.objects.create_user(
             username="max",
@@ -103,9 +147,7 @@ class UserModelTest(TestCase):
             type="business"
         )
 
-        profile = Profile.objects.get(
-            user=user
-        )
+        profile = user.profile
 
         profile.first_name = "Max"
         profile.last_name = "Mustermann"

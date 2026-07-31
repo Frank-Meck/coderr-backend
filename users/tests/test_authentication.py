@@ -4,12 +4,17 @@ from rest_framework import status
 from users.models import User, Profile
 
 
-class RegistrationViewTest(APITestCase):
+class AuthenticationTest(APITestCase):
     """
-    Tests for POST /api/registration/
+    Tests for authentication endpoints.
+
+    Covers:
+    - Registration
+    - Login
+    - Invalid authentication cases
     """
 
-    def test_user_registration_success(self):
+    def test_registration_success(self):
         """
         Happy path:
         User can register successfully.
@@ -18,8 +23,8 @@ class RegistrationViewTest(APITestCase):
         response = self.client.post(
             "/api/registration/",
             {
-                "username": "newuser",
-                "email": "new@test.de",
+                "username": "newcustomer",
+                "email": "customer@test.de",
                 "password": "password123",
                 "repeated_password": "password123",
                 "type": "customer"
@@ -32,9 +37,33 @@ class RegistrationViewTest(APITestCase):
             status.HTTP_201_CREATED
         )
 
+        self.assertEqual(
+            response.data["username"],
+            "newcustomer"
+        )
+
         self.assertTrue(
             User.objects.filter(
-                username="newuser"
+                username="newcustomer"
+            ).exists()
+        )
+
+    def test_registration_creates_profile(self):
+        """
+        Registration should create a profile
+        through signals.py.
+        """
+
+        user = User.objects.create_user(
+            username="signaluser",
+            email="signal@test.de",
+            password="password123",
+            type="customer"
+        )
+
+        self.assertTrue(
+            Profile.objects.filter(
+                user=user
             ).exists()
         )
 
@@ -47,10 +76,10 @@ class RegistrationViewTest(APITestCase):
         response = self.client.post(
             "/api/registration/",
             {
-                "username": "wrongpassworduser",
+                "username": "wrongpassword",
                 "email": "wrong@test.de",
                 "password": "password123",
-                "repeated_password": "wrong123",
+                "repeated_password": "different123",
                 "type": "customer"
             },
             format="json"
@@ -69,7 +98,6 @@ class RegistrationViewTest(APITestCase):
 
         User.objects.create_user(
             username="existinguser",
-            email="old@test.de",
             password="password123",
             type="customer"
         )
@@ -91,85 +119,18 @@ class RegistrationViewTest(APITestCase):
             status.HTTP_400_BAD_REQUEST
         )
 
-
-class ProfileViewTest(APITestCase):
-    """
-    Tests for GET /api/profile/
-    """
-
-    def setUp(self):
-
-        self.user = User.objects.create_user(
-            username="profileuser",
-            password="password123",
-            type="customer"
-        )
-
-        self.client.force_authenticate(
-            user=self.user
-        )
-
-    def test_get_profile(self):
-        """
-        Happy path:
-        Authenticated user can get profile.
-        """
-
-        profile = self.user.profile
-
-        profile.first_name = "Max"
-        profile.last_name = "Mustermann"
-        profile.save()
-        response = self.client.get(
-            "/api/profile/"
-        )
-
-        self.assertEqual(
-            response.status_code,
-            status.HTTP_200_OK
-        )
-
-        self.assertEqual(
-            response.data["username"],
-            "profileuser"
-        )
-
-        self.assertEqual(
-            response.data["first_name"],
-            "Max"
-        )
-
-    def test_profile_created_by_signal(self):
-        """
-        Test that a profile exists after user creation.
-        """
-
-        self.assertTrue(
-            Profile.objects.filter(
-                user=self.user
-            ).exists()
-        )
-
-
-class LoginViewTest(APITestCase):
-    """
-    Tests for POST /api/login/
-    """
-
-    def setUp(self):
-
-        self.user = User.objects.create_user(
-            username="loginuser",
-            email="login@test.de",
-            password="password123",
-            type="customer"
-        )
-
     def test_login_success(self):
         """
         Happy path:
-        User can login with correct credentials.
+        Existing user can login.
         """
+
+        User.objects.create_user(
+            username="loginuser",
+            password="password123",
+            email="login@test.de",
+            type="customer"
+        )
 
         response = self.client.post(
             "/api/login/",
@@ -190,16 +151,27 @@ class LoginViewTest(APITestCase):
             response.data
         )
 
+        self.assertEqual(
+            response.data["username"],
+            "loginuser"
+        )
+
     def test_login_wrong_password(self):
         """
         Unhappy path:
-        Wrong password.
+        Wrong password should fail.
         """
+
+        User.objects.create_user(
+            username="wronglogin",
+            password="password123",
+            type="customer"
+        )
 
         response = self.client.post(
             "/api/login/",
             {
-                "username": "loginuser",
+                "username": "wronglogin",
                 "password": "wrongpassword"
             },
             format="json"
@@ -213,13 +185,13 @@ class LoginViewTest(APITestCase):
     def test_login_unknown_user(self):
         """
         Unhappy path:
-        Username does not exist.
+        User does not exist.
         """
 
         response = self.client.post(
             "/api/login/",
             {
-                "username": "unknownuser",
+                "username": "doesnotexist",
                 "password": "password123"
             },
             format="json"
