@@ -271,4 +271,12 @@ $RECYCLE_BIN/
 
 ### Project-specific ###
 
+# Django local files
+static/
+*.sqlite3
 
+# Environment examples
+.env.local
+
+# IDE
+.vscode/

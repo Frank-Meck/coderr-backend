@@ -120,8 +120,9 @@ class ProfileViewTest(APITestCase):
         profile.first_name = "Max"
         profile.last_name = "Mustermann"
         profile.save()
+
         response = self.client.get(
-            "/api/profile/"
+            f"/api/profile/{self.user.id}/"
         )
 
         self.assertEqual(

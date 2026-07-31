@@ -11,6 +11,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 
+from rest_framework.generics import (
+    RetrieveUpdateAPIView,
+    ListAPIView,
+)
+from .permissions import IsProfileOwner
+
 
 class RegistrationView(APIView):
 
@@ -44,22 +50,51 @@ class RegistrationView(APIView):
         )
 
 
-class ProfileView(APIView):
+class ProfileDetailView(RetrieveUpdateAPIView):
 
-    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
 
-    def get(self, request):
+    permission_classes = [
+        IsAuthenticated,
+        IsProfileOwner,
+    ]
 
-        profile = Profile.objects.get(
-            user=request.user
+    def get_queryset(self):
+        return Profile.objects.filter(
+            user_id=self.kwargs["pk"]
         )
 
-        serializer = ProfileSerializer(profile)
 
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
-        )
+class BusinessProfilesView(ListAPIView):
+    """
+    Returns all business profiles.
+    """
+
+    serializer_class = ProfileSerializer
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    queryset = Profile.objects.filter(
+        user__type="business"
+    )
+
+
+class CustomerProfilesView(ListAPIView):
+    """
+    Returns all customer profiles.
+    """
+
+    serializer_class = ProfileSerializer
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
+
+    queryset = Profile.objects.filter(
+        user__type="customer"
+    )
 
 
 class LoginView(APIView):

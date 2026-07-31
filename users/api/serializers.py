@@ -53,14 +53,52 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    email = serializers.EmailField(
+        source="user.email"
+    )
+
+    type = serializers.CharField(
+        source="user.type",
+        read_only=True
+    )
+
     class Meta:
         model = Profile
+
         fields = [
+            "user",
             "username",
             "first_name",
             "last_name",
+            "file",
             "location",
             "tel",
             "description",
-            "uploaded_at",
+            "working_hours",
+            "type",
+            "email",
+            "created_at",
         ]
+
+        read_only_fields = [
+            "user",
+            "username",
+            "type",
+            "created_at",
+        ]
+
+    def update(self, instance, validated_data):
+
+        user_data = validated_data.pop(
+            "user",
+            {}
+        )
+
+        if "email" in user_data:
+            instance.user.email = user_data["email"]
+            instance.user.save()
+
+        return super().update(
+            instance,
+            validated_data
+        )
