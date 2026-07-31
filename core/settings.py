@@ -9,23 +9,28 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+
 import os
-from dotenv import load_dotenv
 from pathlib import Path
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# Load environment variables
 load_dotenv(BASE_DIR / ".env")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# =====================================================
+# Security
+# =====================================================
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
+
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -33,7 +38,10 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
-# Application definition
+
+# =====================================================
+# Applications
+# =====================================================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,17 +50,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third party
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+
+    # Local apps
     'users.apps.UsersConfig',
     'offers',
     'orders',
     'reviews',
 ]
 
+
+# =====================================================
+# Middleware
+# =====================================================
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,13 +80,27 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+# =====================================================
+# URLs / WSGI
+# =====================================================
+
 ROOT_URLCONF = 'core.urls'
+
+WSGI_APPLICATION = 'core.wsgi.application'
+
+
+# =====================================================
+# Templates
+# =====================================================
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
+
         'APP_DIRS': True,
+
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -79,22 +111,25 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
 
-
+# =====================================================
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# =====================================================
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / os.getenv(
+            "DATABASE_NAME",
+            "db.sqlite3"
+        ),
     }
 }
 
 
+# =====================================================
 # Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+# =====================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -111,24 +146,46 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# =====================================================
+# Django REST Framework
+# =====================================================
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
+
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
 }
 
+
+# =====================================================
+# Custom User Model
+# =====================================================
+
 AUTH_USER_MODEL = "users.User"
 
+
+# =====================================================
+# CORS
+# =====================================================
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        ""
+    ).split(",")
+    if origin.strip()
 ]
 
+
+# =====================================================
 # Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
+# =====================================================
 
 LANGUAGE_CODE = 'en-us'
 
@@ -139,7 +196,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+# =====================================================
+# Static Files
+# =====================================================
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# =====================================================
+# Default primary key field type
+# =====================================================
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
