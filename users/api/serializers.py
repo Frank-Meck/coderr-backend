@@ -48,6 +48,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
 
+    user = serializers.IntegerField(
+        source="user.id",
+        read_only=True
+    )
+
     username = serializers.CharField(
         source="user.username",
         read_only=True
@@ -94,8 +99,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             {}
         )
 
-        if "email" in user_data:
-            instance.user.email = user_data["email"]
+        email = user_data.get(
+            "email"
+        )
+
+        if email:
+            instance.user.email = email
             instance.user.save()
 
         return super().update(

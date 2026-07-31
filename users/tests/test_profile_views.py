@@ -208,3 +208,23 @@ class ProfileListViewTest(APITestCase):
             "customeruser",
             usernames
         )
+
+    def test_get_foreign_profile_allowed(self):
+        """
+        Authenticated users can view other profiles.
+        """
+
+        foreign_user = User.objects.create_user(
+            username="foreign",
+            password="password123",
+            type="business"
+        )
+
+        response = self.client.get(
+            f"/api/profile/{foreign_user.id}/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
