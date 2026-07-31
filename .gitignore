@@ -1,7 +1,12 @@
-# Created by https://www.toptal.com/developers/gitignore/api/python,django,windows,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=python,django,windows,visualstudiocode
+# =====================================================
+# Coderr Backend - Git Ignore
+# Django + Python + Docker + Windows + VS Code
+# =====================================================
 
-### Django ###
+
+# =====================================================
+# Django
+# =====================================================
 
 *.log
 *.pot
@@ -10,19 +15,24 @@ __pycache__/
 
 local_settings.py
 
+# Database
 db.sqlite3
 *.sqlite3
 db.sqlite3-journal
 
+# User uploaded files
 media/
 
-# Static files
+# Collected static files
 staticfiles/
+static/
 
 
-### Django.Python Stack ###
+# =====================================================
+# Python
+# =====================================================
 
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized files
 *.py[cod]
 *$py.class
 
@@ -51,17 +61,12 @@ share/python-wheels/
 MANIFEST
 
 
-# PyInstaller
-*.manifest
-*.spec
-
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
 
-# Unit test / coverage reports
+# Test / Coverage
 htmlcov/
 .tox/
 .nox/
@@ -71,144 +76,45 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
-.hypothesis/
 .pytest_cache/
-cover/
 
 
-# Translations
-*.mo
-
-
-# Flask
-instance/
-.webassets-cache
-
-
-# Scrapy
-.scrapy
-
-
-# Sphinx documentation
-docs/_build/
-
-
-# PyBuilder
-.pybuilder/
-target/
-
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-
-# IPython
-profile_default/
-ipython_config.py
-
-
-# pyenv
-# .python-version
-
-
-# pipenv
-# Pipfile.lock
-
-
-# poetry
-# poetry.lock
-
-
-# pdm
-# pdm.lock
-.pdm.toml
-
-
-# PEP 582
-__pypackages__/
-
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-
-# SageMath
-*.sage.py
-
-
-### Environment Variables ###
-
-# Ignore local environment files
-.env
-.env.*
-
-# Allow example environment file
-!.env.example
-
-
-### Virtual Environments ###
+# =====================================================
+# Virtual Environments
+# =====================================================
 
 .venv/
-env/
 venv/
 ENV/
+env/
 env.bak/
 venv.bak/
 
 
-# Spyder
-.spyderproject
-.spyproject
+# =====================================================
+# Environment Variables
+# =====================================================
+
+# Never commit secrets
+.env
+.env.*
+
+# Exception: template file
+!.env.example
 
 
-# Rope
-.ropeproject
+# =====================================================
+# Docker
+# =====================================================
+
+docker-compose.override.yml
 
 
-# mkdocs
-/site
+# =====================================================
+# IDE / Editor
+# =====================================================
 
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-
-# Pyre
-.pyre/
-
-
-# pytype
-.pytype/
-
-
-# Cython
-cython_debug/
-
-
-# PyCharm
-.idea/
-
-
-### Python Patch ###
-
-# Poetry local configuration
-poetry.toml
-
-
-# Ruff
-.ruff_cache/
-
-
-# LSP config
-pyrightconfig.json
-
-
-### Visual Studio Code ###
-
+# Visual Studio Code
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -216,67 +122,68 @@ pyrightconfig.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
+# JetBrains
+.idea/
 
-# Local History
-.history/
-
-
-# VS Code Extensions
-*.vsix
+# VS Code workspace files
+*.code-workspace
 
 
-### Visual Studio Code Patch ###
+# =====================================================
+# Documentation / Build
+# =====================================================
 
-.history
-.ionide
+docs/_build/
 
 
-### Windows ###
+# =====================================================
+# Operating System
+# =====================================================
 
-# Windows thumbnail cache files
+# Windows
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
 
-
-# Dump files
-*.stackdump
-
-
-# Folder config
 [Dd]esktop.ini
 
-
-# Recycle Bin
-$RECYCLE_BIN/
-
-
-# Windows Installer
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-
-
-# Windows shortcuts
 *.lnk
 
 
-### macOS ###
-
+# macOS
 .DS_Store
 
 
-### Project-specific ###
+# =====================================================
+# Temporary files
+# =====================================================
 
-# Django local files
-static/
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+
+# =====================================================
+# Django specific local files
+# =====================================================
+
 *.sqlite3
+db.sqlite3-journal
 
-# Environment examples
-.env.local
 
-# IDE
-.vscode/
+# =====================================================
+# Project specific
+# =====================================================
+
+# Local uploads
+uploads/
+
+# Local backup files
+backup/
+backups/
+
+# Local secrets
+secrets/
