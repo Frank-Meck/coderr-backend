@@ -27,6 +27,7 @@ Das System unterstützt zwei Benutzerrollen:
 - [Authentifizierung](#authentifizierung)
 - [Berechtigungen](#berechtigungen)
 - [Installation](#installation)
+- [Docker Installation](#docker-installation)
 - [Entwicklung](#entwicklung)
 - [Lizenz](#lizenz)
 
@@ -159,11 +160,11 @@ Liefert:
 
 ## Datenbank
 
-Unterstützt:
+Aktuell verwendet:
 
-- PostgreSQL
 - SQLite (Development)
 
+Die Datenbank wird automatisch über Django Migrationen erstellt.
 ## Frontend
 
 Das Frontend kommuniziert über REST-Endpunkte mit dem Backend.
@@ -396,7 +397,6 @@ Passe anschließend die Werte in der `.env` an, insbesondere:
 - `SECRET_KEY`
 - `DEBUG`
 - `ALLOWED_HOSTS`
-- Datenbankeinstellungen (`DB_*`)
 
 Migration:
 
@@ -416,6 +416,20 @@ Server:
 http://127.0.0.1:8000/
 ```
 
+---
+# 🐳 Docker Installation
+
+Voraussetzungen:
+
+- Docker
+- Docker Compose
+
+
+Repository klonen:
+
+```bash
+git clone https://github.com/Frank-Meck/coderr-backend.git
+```
 ---
 
 # 👨‍💻 Entwicklung
