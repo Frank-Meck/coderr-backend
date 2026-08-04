@@ -61,6 +61,9 @@ INSTALLED_APPS = [
     'offers',
     'orders',
     'reviews',
+
+    # Development app
+    "development",
 ]
 
 

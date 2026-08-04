@@ -187,3 +187,6 @@ backups/
 
 # Local secrets
 secrets/
+
+# Local development helpers
+development/
