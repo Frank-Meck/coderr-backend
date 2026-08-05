@@ -1,19 +1,43 @@
 from decimal import Decimal, InvalidOperation
 
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.exceptions import ValidationError
 
 from django.db.models import Q, Min, F
 
 from offers.models import Offer
-from offers.api.serializers import OfferSerializer
+from offers.api.serializers import (
+    OfferSerializer,
+    OfferCreateSerializer,
+)
 from offers.pagination import OfferPagination
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+
+from offers.api.permissions import IsBusinessUser
 
 
-class OfferListView(ListAPIView):
+class OfferListView(ListCreateAPIView):
 
     pagination_class = OfferPagination
     serializer_class = OfferSerializer
+
+    def get_permissions(self):
+
+        if self.request.method == "POST":
+            return [
+                IsBusinessUser()
+            ]
+
+        return [
+            AllowAny()
+        ]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return OfferCreateSerializer
+        return OfferSerializer
 
     def get_queryset(self):
 
@@ -110,3 +134,25 @@ class OfferListView(ListAPIView):
             queryset = queryset.order_by("id")
 
         return queryset
+
+    def create(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        offer = serializer.save()
+
+        response_serializer = OfferSerializer(
+            offer,
+            context={"request": request}
+        )
+
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_201_CREATED
+        )
