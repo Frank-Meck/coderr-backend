@@ -16,6 +16,8 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 
 from offers.api.permissions import IsBusinessUser
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 
 
 class OfferListView(ListCreateAPIView):
@@ -156,3 +158,11 @@ class OfferListView(ListCreateAPIView):
             response_serializer.data,
             status=status.HTTP_201_CREATED
         )
+
+
+class OfferDetailView(RetrieveAPIView):
+
+    queryset = Offer.objects.all()
+
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
