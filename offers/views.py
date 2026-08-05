@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     ListCreateAPIView,
-    RetrieveUpdateAPIView,
+    RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import (
     AllowAny,
@@ -175,7 +175,7 @@ class OfferListView(ListCreateAPIView):
         )
 
 
-class OfferDetailView(RetrieveUpdateAPIView):
+class OfferDetailView(RetrieveUpdateDestroyAPIView):
 
     queryset = Offer.objects.all()
 
