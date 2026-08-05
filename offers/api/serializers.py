@@ -130,7 +130,6 @@ class OfferCreateSerializer(serializers.ModelSerializer):
 
         return value
 
-
     def create(self, validated_data):
 
         details_data = validated_data.pop("details")
@@ -147,3 +146,60 @@ class OfferCreateSerializer(serializers.ModelSerializer):
             )
 
         return offer
+
+
+class OfferUpdateSerializer(serializers.ModelSerializer):
+
+    details = OfferDetailCreateSerializer(
+        many=True,
+        required=False
+    )
+
+    class Meta:
+        model = Offer
+        fields = (
+            "title",
+            "image",
+            "description",
+            "details",
+        )
+
+    def update(self, instance, validated_data):
+
+        details_data = validated_data.pop(
+            "details",
+            None
+        )
+
+        for attr, value in validated_data.items():
+            setattr(
+                instance,
+                attr,
+                value
+            )
+
+        instance.save()
+
+        if details_data is not None:
+
+            for detail_data in details_data:
+
+                offer_type = detail_data.get(
+                    "offer_type"
+                )
+
+                detail = instance.details.get(
+                    offer_type=offer_type
+                )
+
+                for attr, value in detail_data.items():
+
+                    setattr(
+                        detail,
+                        attr,
+                        value
+                    )
+
+                detail.save()
+
+        return instance

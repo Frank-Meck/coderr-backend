@@ -1,23 +1,30 @@
 from decimal import Decimal, InvalidOperation
 
-from rest_framework.generics import ListAPIView, ListCreateAPIView
-from rest_framework.exceptions import ValidationError
+from django.db.models import F, Min, Q
 
-from django.db.models import Q, Min, F
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateAPIView,
+)
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+)
+from rest_framework.response import Response
 
 from offers.models import Offer
+from offers.pagination import OfferPagination
+from offers.api.permissions import (
+    IsBusinessUser,
+    IsOfferOwner,
+)
 from offers.api.serializers import (
     OfferSerializer,
     OfferCreateSerializer,
+    OfferUpdateSerializer,
 )
-from offers.pagination import OfferPagination
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-
-from offers.api.permissions import IsBusinessUser
-from rest_framework.generics import RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
 
 
 class OfferListView(ListCreateAPIView):
@@ -37,8 +44,10 @@ class OfferListView(ListCreateAPIView):
         ]
 
     def get_serializer_class(self):
+
         if self.request.method == "POST":
             return OfferCreateSerializer
+
         return OfferSerializer
 
     def get_queryset(self):
@@ -101,8 +110,8 @@ class OfferListView(ListCreateAPIView):
 
         if search:
             queryset = queryset.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
+                Q(title__icontains=search)
+                | Q(description__icontains=search)
             )
 
         ordering = self.request.query_params.get("ordering")
@@ -117,12 +126,16 @@ class OfferListView(ListCreateAPIView):
 
             elif ordering == "min_price":
                 queryset = queryset.order_by(
-                    F("min_price_value").asc(nulls_last=True)
+                    F("min_price_value").asc(
+                        nulls_last=True
+                    )
                 )
 
             elif ordering == "-min_price":
                 queryset = queryset.order_by(
-                    F("min_price_value").desc(nulls_last=True)
+                    F("min_price_value").desc(
+                        nulls_last=True
+                    )
                 )
 
             else:
@@ -151,7 +164,9 @@ class OfferListView(ListCreateAPIView):
 
         response_serializer = OfferSerializer(
             offer,
-            context={"request": request}
+            context={
+                "request": request
+            }
         )
 
         return Response(
@@ -160,9 +175,52 @@ class OfferListView(ListCreateAPIView):
         )
 
 
-class OfferDetailView(RetrieveAPIView):
+class OfferDetailView(RetrieveUpdateAPIView):
 
     queryset = Offer.objects.all()
 
-    serializer_class = OfferSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [
+        IsAuthenticated,
+        IsOfferOwner,
+    ]
+
+    def get_serializer_class(self):
+
+        if self.request.method == "PATCH":
+            return OfferUpdateSerializer
+
+        return OfferSerializer
+
+    def update(self, request, *args, **kwargs):
+
+        partial = kwargs.pop(
+            "partial",
+            False
+        )
+
+        instance = self.get_object()
+
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=partial
+        )
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+        self.perform_update(
+            serializer
+        )
+
+        response_serializer = OfferSerializer(
+            serializer.instance,
+            context={
+                "request": request
+            }
+        )
+
+        return Response(
+            response_serializer.data
+        )
