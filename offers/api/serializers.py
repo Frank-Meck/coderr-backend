@@ -18,6 +18,21 @@ class OfferDetailLinkSerializer(serializers.ModelSerializer):
 
         return f"/offerdetails/{obj.id}/"
 
+class OfferDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OfferDetail
+
+        fields = [
+            "id",
+            "title",
+            "revisions",
+            "delivery_time_in_days",
+            "price",
+            "features",
+            "offer_type",
+        ]
+
 
 class OfferSerializer(serializers.ModelSerializer):
 

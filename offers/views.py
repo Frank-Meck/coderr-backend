@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
+    RetrieveAPIView,
 )
 from rest_framework.permissions import (
     AllowAny,
@@ -14,16 +15,23 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
-from offers.models import Offer
+from offers.models import (
+    Offer,
+    OfferDetail,
+)
+
 from offers.pagination import OfferPagination
+
 from offers.api.permissions import (
     IsBusinessUser,
     IsOfferOwner,
 )
+
 from offers.api.serializers import (
     OfferSerializer,
     OfferCreateSerializer,
     OfferUpdateSerializer,
+    OfferDetailSerializer,
 )
 
 
@@ -61,6 +69,7 @@ class OfferListView(ListCreateAPIView):
         if creator_id:
             try:
                 creator_id = int(creator_id)
+
             except ValueError:
                 raise ValidationError(
                     {
@@ -72,11 +81,14 @@ class OfferListView(ListCreateAPIView):
                 business_id=creator_id
             )
 
-        min_price = self.request.query_params.get("min_price")
+        min_price = self.request.query_params.get(
+            "min_price"
+        )
 
         if min_price:
             try:
                 min_price = Decimal(min_price)
+
             except InvalidOperation:
                 raise ValidationError(
                     {
@@ -93,8 +105,12 @@ class OfferListView(ListCreateAPIView):
         )
 
         if max_delivery_time:
+
             try:
-                max_delivery_time = int(max_delivery_time)
+                max_delivery_time = int(
+                    max_delivery_time
+                )
+
             except ValueError:
                 raise ValidationError(
                     {
@@ -106,7 +122,9 @@ class OfferListView(ListCreateAPIView):
                 details__delivery_time_in_days__lte=max_delivery_time
             ).distinct()
 
-        search = self.request.query_params.get("search")
+        search = self.request.query_params.get(
+            "search"
+        )
 
         if search:
             queryset = queryset.filter(
@@ -114,7 +132,9 @@ class OfferListView(ListCreateAPIView):
                 | Q(description__icontains=search)
             )
 
-        ordering = self.request.query_params.get("ordering")
+        ordering = self.request.query_params.get(
+            "ordering"
+        )
 
         if ordering:
 
@@ -122,9 +142,12 @@ class OfferListView(ListCreateAPIView):
                 "updated_at",
                 "-updated_at",
             ]:
-                queryset = queryset.order_by(ordering)
+                queryset = queryset.order_by(
+                    ordering
+                )
 
             elif ordering == "min_price":
+
                 queryset = queryset.order_by(
                     F("min_price_value").asc(
                         nulls_last=True
@@ -132,6 +155,7 @@ class OfferListView(ListCreateAPIView):
                 )
 
             elif ordering == "-min_price":
+
                 queryset = queryset.order_by(
                     F("min_price_value").desc(
                         nulls_last=True
@@ -146,11 +170,19 @@ class OfferListView(ListCreateAPIView):
                 )
 
         else:
-            queryset = queryset.order_by("id")
+
+            queryset = queryset.order_by(
+                "id"
+            )
 
         return queryset
 
-    def create(self, request, *args, **kwargs):
+    def create(
+        self,
+        request,
+        *args,
+        **kwargs
+    ):
 
         serializer = self.get_serializer(
             data=request.data
@@ -187,11 +219,17 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self):
 
         if self.request.method == "PATCH":
+
             return OfferUpdateSerializer
 
         return OfferSerializer
 
-    def update(self, request, *args, **kwargs):
+    def update(
+        self,
+        request,
+        *args,
+        **kwargs
+    ):
 
         partial = kwargs.pop(
             "partial",
@@ -224,3 +262,14 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         return Response(
             response_serializer.data
         )
+
+
+class OfferDetailDetailView(RetrieveAPIView):
+
+    queryset = OfferDetail.objects.all()
+
+    serializer_class = OfferDetailSerializer
+
+    permission_classes = [
+        IsAuthenticated,
+    ]
