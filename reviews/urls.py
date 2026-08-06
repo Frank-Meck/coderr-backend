@@ -1,6 +1,9 @@
 from django.urls import path
 
-from .views import ReviewListView,ReviewUpdateView  
+from .views import (
+    ReviewListView,
+    ReviewUpdateView
+)
 
 
 urlpatterns = [
@@ -12,9 +15,15 @@ urlpatterns = [
     ),
 
     path(
-    "reviews/<int:pk>/",
-    ReviewUpdateView.as_view(),
-    name="review-update"
+        "reviews/<int:pk>/",
+        ReviewUpdateView.as_view(),
+        name="review-update"
+    ),
+
+    path(
+        "reviews/<int:pk>/",
+        ReviewUpdateView.as_view(),
+        name="review-delete"
     ),
 
 ]

@@ -1,6 +1,6 @@
 from rest_framework.generics import (
     ListCreateAPIView,
-    RetrieveUpdateAPIView
+    RetrieveUpdateDestroyAPIView
 )
 
 from rest_framework.permissions import IsAuthenticated
@@ -70,7 +70,7 @@ class ReviewListView(ListCreateAPIView):
         return queryset
 
 
-class ReviewUpdateView(RetrieveUpdateAPIView):
+class ReviewUpdateView(RetrieveUpdateDestroyAPIView):
 
     queryset = Review.objects.all()
 
@@ -78,7 +78,16 @@ class ReviewUpdateView(RetrieveUpdateAPIView):
         IsAuthenticated
     ]
 
-    serializer_class = ReviewUpdateSerializer
+    def get_serializer_class(self):
+
+        if self.request.method in [
+            "PATCH",
+            "PUT"
+        ]:
+
+            return ReviewUpdateSerializer
+
+        return ReviewSerializer
 
     def perform_update(self, serializer):
 
@@ -91,3 +100,13 @@ class ReviewUpdateView(RetrieveUpdateAPIView):
             )
 
         serializer.save()
+
+    def perform_destroy(self, instance):
+
+        if self.request.user != instance.reviewer:
+
+            raise PermissionDenied(
+                "Only the reviewer can delete this review."
+            )
+
+        instance.delete()
