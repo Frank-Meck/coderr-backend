@@ -81,3 +81,15 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
             reviewer=reviewer,
             **validated_data
         )
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Review
+
+        fields = [
+            "rating",
+            "description",
+        ]

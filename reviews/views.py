@@ -1,5 +1,11 @@
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateAPIView
+)
+
 from rest_framework.permissions import IsAuthenticated
+
+from rest_framework.exceptions import PermissionDenied
 
 from .api.permissions import IsCustomer
 
@@ -7,7 +13,8 @@ from .models import Review
 
 from .api.serializers import (
     ReviewSerializer,
-    ReviewCreateSerializer
+    ReviewCreateSerializer,
+    ReviewUpdateSerializer
 )
 
 
@@ -61,3 +68,26 @@ class ReviewListView(ListCreateAPIView):
             )
 
         return queryset
+
+
+class ReviewUpdateView(RetrieveUpdateAPIView):
+
+    queryset = Review.objects.all()
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    serializer_class = ReviewUpdateSerializer
+
+    def perform_update(self, serializer):
+
+        review = self.get_object()
+
+        if self.request.user != review.reviewer:
+
+            raise PermissionDenied(
+                "Only the reviewer can update this review."
+            )
+
+        serializer.save()
