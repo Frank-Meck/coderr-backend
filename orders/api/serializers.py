@@ -93,3 +93,14 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
             status="in_progress"
         )
+
+
+class OrderUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Order
+
+        fields = [
+            "status"
+        ]
