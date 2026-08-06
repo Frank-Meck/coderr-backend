@@ -8,6 +8,14 @@ from rest_framework.permissions import (
     IsAdminUser
 )
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from django.shortcuts import get_object_or_404
+
+from users.models import User
+
 from .api.permissions import IsCustomer
 
 from .models import Order
@@ -28,14 +36,12 @@ class OrderListView(ListCreateAPIView):
 
         return [IsAuthenticated()]
 
-
     def get_serializer_class(self):
 
         if self.request.method == "POST":
             return OrderCreateSerializer
 
         return OrderSerializer
-
 
     def get_queryset(self):
 
@@ -52,11 +58,9 @@ class OrderListView(ListCreateAPIView):
         )
 
 
-
 class OrderUpdateView(RetrieveUpdateDestroyAPIView):
 
     queryset = Order.objects.all()
-
 
     def get_serializer_class(self):
 
@@ -64,7 +68,6 @@ class OrderUpdateView(RetrieveUpdateDestroyAPIView):
             return OrderUpdateSerializer
 
         return OrderSerializer
-
 
     def get_permissions(self):
 
@@ -76,7 +79,6 @@ class OrderUpdateView(RetrieveUpdateDestroyAPIView):
         return [
             IsAuthenticated()
         ]
-
 
     def perform_update(self, serializer):
 
@@ -90,5 +92,31 @@ class OrderUpdateView(RetrieveUpdateDestroyAPIView):
                 "Only the business user can update the order."
             )
 
-
         serializer.save()
+
+
+class OrderCountView(APIView):
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    def get(self, request, business_user_id):
+
+        business_user = get_object_or_404(
+            User,
+            id=business_user_id,
+            type="business"
+        )
+
+        count = Order.objects.filter(
+            business=business_user,
+            status="in_progress"
+        ).count()
+
+        return Response(
+            {
+                "order_count": count
+            },
+            status=status.HTTP_200_OK
+        )
