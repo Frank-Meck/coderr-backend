@@ -1,9 +1,12 @@
 from rest_framework.generics import (
     ListCreateAPIView,
-    RetrieveUpdateAPIView
+    RetrieveUpdateDestroyAPIView
 )
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAdminUser
+)
 
 from .api.permissions import IsCustomer
 
@@ -49,15 +52,30 @@ class OrderListView(ListCreateAPIView):
         )
 
 
-class OrderUpdateView(RetrieveUpdateAPIView):
+
+class OrderUpdateView(RetrieveUpdateDestroyAPIView):
 
     queryset = Order.objects.all()
 
-    serializer_class = OrderUpdateSerializer
 
-    permission_classes = [
-        IsAuthenticated
-    ]
+    def get_serializer_class(self):
+
+        if self.request.method in ["PATCH", "PUT"]:
+            return OrderUpdateSerializer
+
+        return OrderSerializer
+
+
+    def get_permissions(self):
+
+        if self.request.method == "DELETE":
+            return [
+                IsAdminUser()
+            ]
+
+        return [
+            IsAuthenticated()
+        ]
 
 
     def perform_update(self, serializer):
