@@ -1,17 +1,35 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from .api.permissions import IsCustomer
+
 from .models import Review
-from .api.serializers import ReviewSerializer
+
+from .api.serializers import (
+    ReviewSerializer,
+    ReviewCreateSerializer
+)
 
 
-class ReviewListView(ListAPIView):
+class ReviewListView(ListCreateAPIView):
 
-    serializer_class = ReviewSerializer
+    def get_permissions(self):
 
-    permission_classes = [
-        IsAuthenticated
-    ]
+        if self.request.method == "POST":
+            return [
+                IsCustomer()
+            ]
+
+        return [
+            IsAuthenticated()
+        ]
+
+    def get_serializer_class(self):
+
+        if self.request.method == "POST":
+            return ReviewCreateSerializer
+
+        return ReviewSerializer
 
     ordering_fields = [
         "updated_at",
@@ -31,11 +49,13 @@ class ReviewListView(ListAPIView):
         )
 
         if business_user_id:
+
             queryset = queryset.filter(
                 business_id=business_user_id
             )
 
         if reviewer_id:
+
             queryset = queryset.filter(
                 reviewer_id=reviewer_id
             )
