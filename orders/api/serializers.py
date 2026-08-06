@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import NotFound
 
 from orders.models import Order
 from offers.models import OfferDetail
@@ -64,10 +65,8 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
         except OfferDetail.DoesNotExist:
 
-            raise serializers.ValidationError(
-                {
-                    "offer_detail_id": "OfferDetail not found."
-                }
+            raise NotFound(
+                "OfferDetail not found."
             )
 
         customer = self.context["request"].user
