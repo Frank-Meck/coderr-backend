@@ -6,20 +6,20 @@ from users.models import User, Profile
 
 class AuthenticationTest(APITestCase):
     """
-    Tests for authentication endpoints.
+    Test the authentication-related API functionality.
 
-    Covers:
-    - Registration
-    - Login
-    - Invalid authentication cases
+    Covers successful registration, automatic profile creation,
+    login, invalid registration data, and invalid login attempts.
     """
 
     def test_registration_success(self):
         """
-        Happy path:
-        User can register successfully.
-        """
+        Verify that a user can register successfully.
 
+        A valid registration request should return HTTP 201,
+        return the registered username, and create the user
+        in the database.
+        """
         response = self.client.post(
             "/api/registration/",
             {
@@ -50,10 +50,11 @@ class AuthenticationTest(APITestCase):
 
     def test_registration_creates_profile(self):
         """
-        Registration should create a profile
-        through signals.py.
-        """
+        Verify that creating a user also creates a profile.
 
+        The User post_save signal should automatically create
+        a corresponding Profile instance for the new user.
+        """
         user = User.objects.create_user(
             username="signaluser",
             email="signal@test.de",
@@ -69,10 +70,11 @@ class AuthenticationTest(APITestCase):
 
     def test_registration_password_mismatch(self):
         """
-        Unhappy path:
-        Password confirmation does not match.
-        """
+        Verify that registration fails when passwords do not match.
 
+        A registration request with different password and
+        repeated_password values should return HTTP 400.
+        """
         response = self.client.post(
             "/api/registration/",
             {
@@ -92,10 +94,11 @@ class AuthenticationTest(APITestCase):
 
     def test_registration_duplicate_username(self):
         """
-        Unhappy path:
-        Username already exists.
-        """
+        Verify that registration fails for an existing username.
 
+        A username that is already registered should not be
+        accepted again and should return HTTP 400.
+        """
         User.objects.create_user(
             username="existinguser",
             password="password123",
@@ -121,10 +124,11 @@ class AuthenticationTest(APITestCase):
 
     def test_login_success(self):
         """
-        Happy path:
-        Existing user can login.
-        """
+        Verify that an existing user can log in successfully.
 
+        Valid login credentials should return HTTP 200 and
+        an authentication token together with the username.
+        """
         User.objects.create_user(
             username="loginuser",
             password="password123",
@@ -158,10 +162,11 @@ class AuthenticationTest(APITestCase):
 
     def test_login_wrong_password(self):
         """
-        Unhappy path:
-        Wrong password should fail.
-        """
+        Verify that login fails when the password is incorrect.
 
+        An existing user submitting an incorrect password should
+        receive HTTP 400.
+        """
         User.objects.create_user(
             username="wronglogin",
             password="password123",
@@ -184,10 +189,11 @@ class AuthenticationTest(APITestCase):
 
     def test_login_unknown_user(self):
         """
-        Unhappy path:
-        User does not exist.
-        """
+        Verify that login fails when the username does not exist.
 
+        Authentication with an unknown username should return
+        HTTP 400.
+        """
         response = self.client.post(
             "/api/login/",
             {

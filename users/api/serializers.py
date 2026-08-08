@@ -4,6 +4,12 @@ from users.models import User, Profile
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for registering new users.
+
+    Validates the registration data, including the repeated password,
+    and creates a new User instance with a securely hashed password.
+    """
 
     repeated_password = serializers.CharField(
         write_only=True
@@ -27,7 +33,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
+        """
+        Validate that both submitted passwords are identical.
 
+        Args:
+            attrs: Validated registration data.
+
+        Returns:
+            dict: Validated registration data.
+
+        Raises:
+            serializers.ValidationError: If the passwords do not match.
+        """
         if attrs["password"] != attrs["repeated_password"]:
             raise serializers.ValidationError(
                 "Passwords do not match"
@@ -36,7 +53,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """
+        Create a new user from validated registration data.
 
+        The repeated password is removed before the User instance
+        is created. Django's create_user method is used to ensure
+        that the password is stored securely as a hash.
+
+        Args:
+            validated_data: Validated registration data.
+
+        Returns:
+            User: The newly created user instance.
+        """
         validated_data.pop(
             "repeated_password"
         )
@@ -47,6 +76,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for reading and updating user profile information.
+
+    Provides profile data together with selected read-only information
+    from the associated User instance, including username and user type.
+    The user's email address can also be updated through the profile.
+    """
 
     user = serializers.IntegerField(
         source="user.id",
@@ -93,7 +129,20 @@ class ProfileSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
+        """
+        Update profile data and the associated user's email address.
 
+        Profile fields are updated through the Profile instance.
+        The email address belongs to the related User instance and
+        is therefore handled separately before the profile is updated.
+
+        Args:
+            instance: The existing Profile instance.
+            validated_data: Validated profile data.
+
+        Returns:
+            Profile: The updated profile instance.
+        """
         user_data = validated_data.pop(
             "user",
             {}

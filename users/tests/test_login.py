@@ -6,20 +6,20 @@ from users.models import User
 
 class LoginViewTest(APITestCase):
     """
-    Tests for POST /api/login/
+    Test the login endpoint.
 
-    Covers:
-    - successful login
-    - wrong password
-    - unknown user
-    - missing fields
+    Covers successful authentication, invalid credentials,
+    unknown users, and missing login fields.
     """
 
     def setUp(self):
         """
-        Create test user before each test.
-        """
+        Create a test user before each test.
 
+        The user is created with a known password so that
+        successful and unsuccessful authentication attempts
+        can be tested.
+        """
         self.user = User.objects.create_user(
             username="loginuser",
             email="login@test.de",
@@ -29,15 +29,11 @@ class LoginViewTest(APITestCase):
 
     def test_login_success(self):
         """
-        Happy Path:
+        Verify successful user authentication.
 
-        User logs in with correct credentials.
-        Expected:
-        - HTTP 200
-        - Token returned
-        - User information returned
+        A valid username and password should return HTTP 200
+        together with an authentication token and user information.
         """
-
         response = self.client.post(
             "/api/login/",
             {
@@ -74,14 +70,11 @@ class LoginViewTest(APITestCase):
 
     def test_login_wrong_password(self):
         """
-        Unhappy Path:
+        Verify that authentication fails with an incorrect password.
 
-        Existing user but wrong password.
-
-        Expected:
-        HTTP 400
+        An existing user submitting the wrong password should receive
+        HTTP 400 and no successful authentication response.
         """
-
         response = self.client.post(
             "/api/login/",
             {
@@ -98,14 +91,10 @@ class LoginViewTest(APITestCase):
 
     def test_login_unknown_username(self):
         """
-        Unhappy Path:
+        Verify that authentication fails for an unknown username.
 
-        Username does not exist.
-
-        Expected:
-        HTTP 400
+        A username that does not exist should result in HTTP 400.
         """
-
         response = self.client.post(
             "/api/login/",
             {
@@ -122,14 +111,11 @@ class LoginViewTest(APITestCase):
 
     def test_login_missing_username(self):
         """
-        Unhappy Path:
+        Verify that login fails when the username is missing.
 
-        Username missing.
-
-        Expected:
-        HTTP 400
+        The login endpoint requires both username and password,
+        therefore a request without username should return HTTP 400.
         """
-
         response = self.client.post(
             "/api/login/",
             {
@@ -145,14 +131,11 @@ class LoginViewTest(APITestCase):
 
     def test_login_missing_password(self):
         """
-        Unhappy Path:
+        Verify that login fails when the password is missing.
 
-        Password missing.
-
-        Expected:
-        HTTP 400
+        The login endpoint requires both username and password,
+        therefore a request without password should return HTTP 400.
         """
-
         response = self.client.post(
             "/api/login/",
             {

@@ -1,30 +1,45 @@
-from django.http import request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
-from .serializers import RegistrationSerializer
-from rest_framework.permissions import AllowAny
-
-from .serializers import RegistrationSerializer, ProfileSerializer
-from users.models import Profile
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
-
 from rest_framework.generics import (
     RetrieveUpdateAPIView,
     ListAPIView,
 )
+from django.contrib.auth import authenticate
+
+from .serializers import RegistrationSerializer, ProfileSerializer
 from .permissions import IsProfileOwner
+from users.models import Profile
 
 
 class RegistrationView(APIView):
+    """
+    Register a new user and return an authentication token.
+
+    Allows unauthenticated users to create a customer or business account.
+    After successful registration, an authentication token and basic user
+    information are returned.
+
+    Returns:
+        201: User was successfully registered.
+        400: Registration data is invalid.
+    """
 
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Create a new user account.
 
+        Args:
+            request: HTTP request containing the registration data.
+
+        Returns:
+            Response: Authentication token and user information on success,
+            or serializer validation errors on failure.
+        """
         serializer = RegistrationSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -52,6 +67,18 @@ class RegistrationView(APIView):
 
 
 class ProfileDetailView(RetrieveUpdateAPIView):
+    """
+    Retrieve and update the profile of a specific user.
+
+    Authenticated users can retrieve profile information.
+    Profile updates are restricted to the owner of the profile.
+
+    Returns:
+        200: Profile was successfully retrieved or updated.
+        401: User is not authenticated.
+        403: Authenticated user is not the profile owner.
+        404: Profile was not found.
+    """
 
     serializer_class = ProfileSerializer
 
@@ -61,6 +88,12 @@ class ProfileDetailView(RetrieveUpdateAPIView):
     ]
 
     def get_queryset(self):
+        """
+        Return the profile belonging to the requested user ID.
+
+        Returns:
+            QuerySet: Profile matching the user ID from the URL.
+        """
         return Profile.objects.filter(
             user_id=self.kwargs["pk"]
         )
@@ -68,7 +101,13 @@ class ProfileDetailView(RetrieveUpdateAPIView):
 
 class BusinessProfilesView(ListAPIView):
     """
-    Returns all business profiles.
+    Return all profiles belonging to business users.
+
+    Access to this endpoint requires authentication.
+
+    Returns:
+        200: List of business profiles.
+        401: User is not authenticated.
     """
 
     serializer_class = ProfileSerializer
@@ -84,7 +123,13 @@ class BusinessProfilesView(ListAPIView):
 
 class CustomerProfilesView(ListAPIView):
     """
-    Returns all customer profiles.
+    Return all profiles belonging to customer users.
+
+    Access to this endpoint requires authentication.
+
+    Returns:
+        200: List of customer profiles.
+        401: User is not authenticated.
     """
 
     serializer_class = ProfileSerializer
@@ -99,14 +144,31 @@ class CustomerProfilesView(ListAPIView):
 
 
 class LoginView(APIView):
+    """
+    Authenticate a user and return an authentication token.
+
+    Allows unauthenticated users to log in with their username and password.
+    If the credentials are valid, an authentication token and basic user
+    information are returned.
+
+    Returns:
+        200: Authentication was successful.
+        400: Username/password is missing or credentials are invalid.
+    """
 
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Authenticate a user using the submitted credentials.
 
-        print("LOGIN VIEW ERREICHT")
-        print("REQUEST DATA:", request.data)
+        Args:
+            request: HTTP request containing username and password.
 
+        Returns:
+            Response: Authentication token and user information on success,
+            or an error message if authentication fails.
+        """
         username = request.data.get("username")
         password = request.data.get("password")
 

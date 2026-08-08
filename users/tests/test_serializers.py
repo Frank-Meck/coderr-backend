@@ -6,20 +6,20 @@ from users.models import User
 
 class RegistrationSerializerTest(TestCase):
     """
-    Tests for the RegistrationSerializer.
+    Test the RegistrationSerializer.
 
-    Covers:
-    - valid registration data
-    - validation errors
-    - duplicate users
-    - user creation
+    Covers validation of registration data, password confirmation,
+    required fields, duplicate usernames, user creation, and
+    secure password storage.
     """
 
     def test_valid_registration_data(self):
         """
-        Test that valid registration data passes validation.
-        """
+        Verify that valid registration data passes validation.
 
+        A valid username, email, password, repeated password, and
+        user type should result in a valid serializer.
+        """
         data = {
             "username": "testuser",
             "email": "test@test.de",
@@ -38,9 +38,11 @@ class RegistrationSerializerTest(TestCase):
 
     def test_password_confirmation_mismatch(self):
         """
-        Test that registration fails if passwords do not match.
-        """
+        Verify that registration fails when passwords do not match.
 
+        The serializer should return a validation error when
+        password and repeated_password contain different values.
+        """
         data = {
             "username": "testuser",
             "email": "test@test.de",
@@ -64,9 +66,11 @@ class RegistrationSerializerTest(TestCase):
 
     def test_username_required(self):
         """
-        Test that username is required.
-        """
+        Verify that username is a required registration field.
 
+        The serializer should reject registration data when
+        no username is provided.
+        """
         data = {
             "email": "test@test.de",
             "password": "password123",
@@ -89,9 +93,11 @@ class RegistrationSerializerTest(TestCase):
 
     def test_duplicate_username(self):
         """
-        Test that duplicate usernames are rejected.
-        """
+        Verify that duplicate usernames are rejected.
 
+        Registration data containing a username that already exists
+        should fail serializer validation.
+        """
         User.objects.create_user(
             username="existinguser",
             email="old@test.de",
@@ -122,9 +128,12 @@ class RegistrationSerializerTest(TestCase):
 
     def test_create_user_successfully(self):
         """
-        Test that serializer creates a user correctly.
-        """
+        Verify that the serializer creates a user correctly.
 
+        The created user should contain the expected username,
+        email, and account type, and the supplied password should
+        be usable for authentication.
+        """
         data = {
             "username": "newuser",
             "email": "new@test.de",
@@ -166,9 +175,11 @@ class RegistrationSerializerTest(TestCase):
 
     def test_password_is_not_saved_plain_text(self):
         """
-        Test that passwords are hashed.
-        """
+        Verify that the user's password is stored as a hash.
 
+        The password stored in the database must not be equal to
+        the plain-text password supplied during registration.
+        """
         data = {
             "username": "secureuser",
             "email": "secure@test.de",

@@ -5,22 +5,21 @@ from users.models import User, Profile
 
 class UserModelTest(TestCase):
     """
-    Test suite for the custom User and Profile models.
+    Test the custom User and Profile models.
 
-    Verifies:
-    - user creation
-    - password hashing
-    - user types
-    - profile relationship
-    - profile optional fields
-    - string representation
+    Covers user creation, password hashing, user types,
+    the User/Profile relationship, optional profile fields,
+    and string representations.
     """
 
     def test_create_user(self):
         """
-        Test if a user can be created using the custom User model.
-        """
+        Verify that a user can be created using the custom User model.
 
+        The created user should contain the expected username,
+        email, and account type. The password must also be usable
+        for authentication.
+        """
         user = User.objects.create_user(
             username="testuser",
             email="test@test.de",
@@ -51,9 +50,12 @@ class UserModelTest(TestCase):
 
     def test_user_profile_relation(self):
         """
-        Test the OneToOne relationship between User and Profile.
-        """
+        Verify the OneToOne relationship between User and Profile.
 
+        A profile should be automatically created for a new user,
+        and both sides of the relationship should reference the
+        correct objects.
+        """
         user = User.objects.create_user(
             username="jane",
             password="password123",
@@ -78,9 +80,11 @@ class UserModelTest(TestCase):
 
     def test_profile_optional_fields(self):
         """
-        Test that optional profile fields allow empty values.
-        """
+        Verify that optional profile fields use empty strings by default.
 
+        Fields such as location, telephone number, and description
+        should contain an empty string when no value is provided.
+        """
         user = User.objects.create_user(
             username="customer1",
             password="password123",
@@ -106,9 +110,10 @@ class UserModelTest(TestCase):
 
     def test_user_type_customer(self):
         """
-        Test customer user type.
-        """
+        Verify that a customer user can be created.
 
+        The user's type should be stored as "customer".
+        """
         user = User.objects.create_user(
             username="customer",
             password="password123",
@@ -122,9 +127,10 @@ class UserModelTest(TestCase):
 
     def test_user_type_business(self):
         """
-        Test business user type.
-        """
+        Verify that a business user can be created.
 
+        The user's type should be stored as "business".
+        """
         user = User.objects.create_user(
             username="business",
             password="password123",
@@ -138,9 +144,11 @@ class UserModelTest(TestCase):
 
     def test_profile_str(self):
         """
-        Test the string representation of Profile.
-        """
+        Verify the string representation of a Profile.
 
+        The string representation should contain the profile
+        owner's first and last name.
+        """
         user = User.objects.create_user(
             username="max",
             password="123456",

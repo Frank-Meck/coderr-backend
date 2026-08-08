@@ -6,11 +6,19 @@ from users.models import User
 
 class ProfileDetailViewTest(APITestCase):
     """
-    Tests for GET and PATCH /api/profile/{pk}/
+    Test the individual profile endpoint.
+
+    Covers profile retrieval, profile updates, authentication,
+    and ownership permissions for GET and PATCH requests.
     """
 
     def setUp(self):
+        """
+        Create and authenticate a test customer.
 
+        The created user is used as the owner of the profile
+        throughout the individual profile tests.
+        """
         self.user = User.objects.create_user(
             username="profileuser",
             email="profile@test.de",
@@ -24,9 +32,11 @@ class ProfileDetailViewTest(APITestCase):
 
     def test_update_email(self):
         """
-        User can update email.
-        """
+        Verify that a user can update their email address.
 
+        A valid PATCH request should return HTTP 200 and update
+        the email address of the associated User instance.
+        """
         response = self.client.patch(
             f"/api/profile/{self.user.id}/",
             {
@@ -49,9 +59,11 @@ class ProfileDetailViewTest(APITestCase):
 
     def test_get_profile_authenticated(self):
         """
-        Authenticated user can retrieve profile.
-        """
+        Verify that an authenticated user can retrieve a profile.
 
+        The endpoint should return HTTP 200 and the expected
+        profile information.
+        """
         response = self.client.get(
             f"/api/profile/{self.user.id}/"
         )
@@ -68,9 +80,11 @@ class ProfileDetailViewTest(APITestCase):
 
     def test_get_profile_unauthenticated(self):
         """
-        Anonymous user cannot retrieve profile.
-        """
+        Verify that unauthenticated users cannot retrieve profiles.
 
+        Accessing the protected endpoint without authentication
+        should return HTTP 401.
+        """
         self.client.force_authenticate(
             user=None
         )
@@ -86,9 +100,11 @@ class ProfileDetailViewTest(APITestCase):
 
     def test_update_own_profile(self):
         """
-        User can update own profile.
-        """
+        Verify that a user can update their own profile.
 
+        A valid PATCH request to the user's own profile should
+        return HTTP 200 and update the submitted profile fields.
+        """
         response = self.client.patch(
             f"/api/profile/{self.user.id}/",
             {
@@ -110,9 +126,11 @@ class ProfileDetailViewTest(APITestCase):
 
     def test_update_other_profile_forbidden(self):
         """
-        User cannot update another profile.
-        """
+        Verify that a user cannot update another user's profile.
 
+        Attempting to modify a profile owned by another user
+        should return HTTP 403.
+        """
         other_user = User.objects.create_user(
             username="otheruser",
             password="password123",
@@ -135,11 +153,20 @@ class ProfileDetailViewTest(APITestCase):
 
 class ProfileListViewTest(APITestCase):
     """
-    Tests for business and customer profile lists.
+    Test the business and customer profile list endpoints.
+
+    Verifies that the endpoints return profiles belonging only
+    to the requested user type and that authenticated users can
+    view profiles of other users.
     """
 
     def setUp(self):
+        """
+        Create business and customer test users.
 
+        The customer user is authenticated and used to access
+        the protected profile list endpoints.
+        """
         self.business_user = User.objects.create_user(
             username="businessuser",
             password="password123",
@@ -158,9 +185,12 @@ class ProfileListViewTest(APITestCase):
 
     def test_get_business_profiles(self):
         """
-        Returns only business profiles.
-        """
+        Verify that the business profile endpoint returns only
+        business users.
 
+        The response should contain the business user and exclude
+        the customer user.
+        """
         response = self.client.get(
             "/api/profiles/business/"
         )
@@ -187,9 +217,11 @@ class ProfileListViewTest(APITestCase):
 
     def test_get_customer_profiles(self):
         """
-        Returns only customer profiles.
-        """
+        Verify that the customer profile endpoint returns only
+        customer users.
 
+        The response should contain the customer user.
+        """
         response = self.client.get(
             "/api/profiles/customer/"
         )
@@ -211,9 +243,11 @@ class ProfileListViewTest(APITestCase):
 
     def test_get_foreign_profile_allowed(self):
         """
-        Authenticated users can view other profiles.
-        """
+        Verify that authenticated users can view other profiles.
 
+        An authenticated user should be able to retrieve another
+        user's profile and receive HTTP 200.
+        """
         foreign_user = User.objects.create_user(
             username="foreign",
             password="password123",

@@ -6,15 +6,19 @@ from users.models import User, Profile
 
 class RegistrationViewTest(APITestCase):
     """
-    Tests for POST /api/registration/
+    Test the user registration endpoint.
+
+    Covers successful registration and validation errors such as
+    password mismatches and duplicate usernames.
     """
 
     def test_user_registration_success(self):
         """
-        Happy path:
-        User can register successfully.
-        """
+        Verify that a user can register successfully.
 
+        A valid registration request should return HTTP 201 and
+        create a corresponding User instance in the database.
+        """
         response = self.client.post(
             "/api/registration/",
             {
@@ -40,10 +44,10 @@ class RegistrationViewTest(APITestCase):
 
     def test_registration_password_mismatch(self):
         """
-        Unhappy path:
-        Password confirmation does not match.
-        """
+        Verify that registration fails when passwords do not match.
 
+        A password confirmation mismatch should return HTTP 400.
+        """
         response = self.client.post(
             "/api/registration/",
             {
@@ -63,10 +67,10 @@ class RegistrationViewTest(APITestCase):
 
     def test_registration_duplicate_username(self):
         """
-        Unhappy path:
-        Username already exists.
-        """
+        Verify that registration fails for an existing username.
 
+        A duplicate username should return HTTP 400.
+        """
         User.objects.create_user(
             username="existinguser",
             email="old@test.de",
@@ -94,11 +98,19 @@ class RegistrationViewTest(APITestCase):
 
 class ProfileViewTest(APITestCase):
     """
-    Tests for GET /api/profile/
+    Test the individual user profile endpoint.
+
+    Covers authenticated profile retrieval and automatic profile
+    creation after user registration.
     """
 
     def setUp(self):
+        """
+        Create an authenticated test user and its profile.
 
+        The authentication is applied to the test client so that
+        protected profile endpoints can be tested.
+        """
         self.user = User.objects.create_user(
             username="profileuser",
             password="password123",
@@ -111,10 +123,11 @@ class ProfileViewTest(APITestCase):
 
     def test_get_profile(self):
         """
-        Happy path:
-        Authenticated user can get profile.
-        """
+        Verify that an authenticated user can retrieve a profile.
 
+        The response should return HTTP 200 and contain the expected
+        username and profile information.
+        """
         profile = self.user.profile
 
         profile.first_name = "Max"
@@ -142,9 +155,11 @@ class ProfileViewTest(APITestCase):
 
     def test_profile_created_by_signal(self):
         """
-        Test that a profile exists after user creation.
-        """
+        Verify that a profile is automatically created for a new user.
 
+        The User post-save signal should create a corresponding
+        Profile instance.
+        """
         self.assertTrue(
             Profile.objects.filter(
                 user=self.user
@@ -154,11 +169,15 @@ class ProfileViewTest(APITestCase):
 
 class LoginViewTest(APITestCase):
     """
-    Tests for POST /api/login/
+    Test the user login endpoint.
+
+    Covers successful authentication as well as invalid credentials.
     """
 
     def setUp(self):
-
+        """
+        Create a user with known login credentials for the tests.
+        """
         self.user = User.objects.create_user(
             username="loginuser",
             email="login@test.de",
@@ -168,10 +187,11 @@ class LoginViewTest(APITestCase):
 
     def test_login_success(self):
         """
-        Happy path:
-        User can login with correct credentials.
-        """
+        Verify that a user can log in with valid credentials.
 
+        A successful login should return HTTP 200 and an authentication
+        token.
+        """
         response = self.client.post(
             "/api/login/",
             {
@@ -193,10 +213,10 @@ class LoginViewTest(APITestCase):
 
     def test_login_wrong_password(self):
         """
-        Unhappy path:
-        Wrong password.
-        """
+        Verify that login fails when the password is incorrect.
 
+        Invalid credentials should return HTTP 400.
+        """
         response = self.client.post(
             "/api/login/",
             {
@@ -213,10 +233,10 @@ class LoginViewTest(APITestCase):
 
     def test_login_unknown_user(self):
         """
-        Unhappy path:
-        Username does not exist.
-        """
+        Verify that login fails when the username does not exist.
 
+        Invalid credentials should return HTTP 400.
+        """
         response = self.client.post(
             "/api/login/",
             {
