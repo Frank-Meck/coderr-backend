@@ -1,3 +1,4 @@
+from django.http import request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -102,6 +103,9 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+
+        print("LOGIN VIEW ERREICHT")
+        print("REQUEST DATA:", request.data)
 
         username = request.data.get("username")
         password = request.data.get("password")

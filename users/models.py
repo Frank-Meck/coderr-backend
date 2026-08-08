@@ -103,10 +103,11 @@ class Profile(models.Model):
         help_text="Short description or biography of the user."
     )
 
-    working_hours = models.JSONField(
+    working_hours = models.CharField(
+        max_length=100,
         blank=True,
-        default=dict,
-        help_text="Stores the user's working hours as JSON data."
+        default="",
+        help_text="User's working hours."
     )
 
     created_at = models.DateTimeField(
