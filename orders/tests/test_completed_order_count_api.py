@@ -6,9 +6,20 @@ from orders.models import Order
 
 
 class CompletedOrderCountAPITest(APITestCase):
+    """
+    Test cases for the completed order count endpoint.
+
+    These tests verify authentication requirements, correct order
+    counting, and handling of non-existent business users.
+    """
 
     def setUp(self):
+        """
+        Create the users and orders required for the test cases.
 
+        Two completed orders and one in-progress order are created
+        for the same business user.
+        """
         self.business = User.objects.create_user(
             username="business@test.com",
             password="test123",
@@ -64,7 +75,10 @@ class CompletedOrderCountAPITest(APITestCase):
         )
 
     def test_authenticated_user_can_get_completed_order_count(self):
-
+        """
+        Verify that an authenticated user can retrieve the
+        completed order count for a business user.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -84,7 +98,9 @@ class CompletedOrderCountAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_get_completed_order_count(self):
-
+        """
+        Verify that unauthenticated users cannot access the endpoint.
+        """
         response = self.client.get(
             f"/api/completed-order-count/{self.business.id}/"
         )
@@ -95,7 +111,10 @@ class CompletedOrderCountAPITest(APITestCase):
         )
 
     def test_business_user_not_found(self):
-
+        """
+        Verify that the endpoint returns 404 when the specified
+        business user does not exist.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -108,3 +127,4 @@ class CompletedOrderCountAPITest(APITestCase):
             response.status_code,
             status.HTTP_404_NOT_FOUND
         )
+

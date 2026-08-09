@@ -6,9 +6,17 @@ from orders.models import Order
 
 
 class OrderDeleteAPITest(APITestCase):
+    """
+    Test cases for deleting orders.
+
+    These tests verify that only admin users can delete orders
+    and that unauthorized or invalid requests are rejected.
+    """
 
     def setUp(self):
-
+        """
+        Create the users and order required for the test cases.
+        """
         self.admin = User.objects.create_user(
             username="admin@test.com",
             password="test123",
@@ -42,7 +50,9 @@ class OrderDeleteAPITest(APITestCase):
         )
 
     def test_admin_can_delete_order(self):
-
+        """
+        Verify that an authenticated admin user can delete an order.
+        """
         self.client.force_authenticate(
             user=self.admin
         )
@@ -62,7 +72,9 @@ class OrderDeleteAPITest(APITestCase):
         )
 
     def test_customer_cannot_delete_order(self):
-
+        """
+        Verify that a customer cannot delete an order.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -82,7 +94,9 @@ class OrderDeleteAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_delete_order(self):
-
+        """
+        Verify that unauthenticated users cannot delete an order.
+        """
         response = self.client.delete(
             f"/api/orders/{self.order.id}/"
         )
@@ -93,7 +107,9 @@ class OrderDeleteAPITest(APITestCase):
         )
 
     def test_delete_non_existing_order(self):
-
+        """
+        Verify that deleting a non-existent order returns a 404 response.
+        """
         self.client.force_authenticate(
             user=self.admin
         )
@@ -106,3 +122,4 @@ class OrderDeleteAPITest(APITestCase):
             response.status_code,
             status.HTTP_404_NOT_FOUND
         )
+

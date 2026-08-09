@@ -7,9 +7,17 @@ from orders.models import Order
 
 
 class OrderCreateAPITest(APITestCase):
+    """
+    Test cases for creating orders.
+
+    These tests verify that customers can create orders from offer
+    details and that invalid users or input data are rejected.
+    """
 
     def setUp(self):
-
+        """
+        Create the users, offer, and offer detail required for the tests.
+        """
         self.customer = User.objects.create_user(
             username="customer@test.com",
             password="test123",
@@ -42,7 +50,13 @@ class OrderCreateAPITest(APITestCase):
         )
 
     def test_customer_can_create_order(self):
+        """
+        Verify that an authenticated customer can create an order
+        from an existing offer detail.
 
+        The created order must contain the customer, business,
+        offer detail, and all relevant offer detail information.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -113,7 +127,9 @@ class OrderCreateAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_create_order(self):
-
+        """
+        Verify that unauthenticated users cannot create an order.
+        """
         response = self.client.post(
             "/api/orders/",
             {
@@ -128,7 +144,9 @@ class OrderCreateAPITest(APITestCase):
         )
 
     def test_business_cannot_create_order(self):
-
+        """
+        Verify that business users are not allowed to create orders.
+        """
         self.client.force_authenticate(
             user=self.business
         )
@@ -147,7 +165,10 @@ class OrderCreateAPITest(APITestCase):
         )
 
     def test_offer_detail_id_is_required(self):
-
+        """
+        Verify that the offer detail ID is required when creating
+        an order.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -164,7 +185,10 @@ class OrderCreateAPITest(APITestCase):
         )
 
     def test_offer_detail_not_found(self):
-
+        """
+        Verify that a 404 response is returned when the specified
+        offer detail does not exist.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -181,3 +205,4 @@ class OrderCreateAPITest(APITestCase):
             response.status_code,
             status.HTTP_404_NOT_FOUND
         )
+

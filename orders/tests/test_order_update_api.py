@@ -6,9 +6,20 @@ from orders.models import Order
 
 
 class OrderUpdateAPITest(APITestCase):
+    """
+    Test cases for updating orders.
+
+    These tests verify that only the business user associated with
+    an order can update it and that invalid requests are rejected.
+    """
 
     def setUp(self):
+        """
+        Create the users and order required for the test cases.
 
+        One customer and two business users are created. The order
+        belongs to the first business user.
+        """
         self.customer = User.objects.create_user(
             username="customer@test.com",
             password="test123",
@@ -43,7 +54,10 @@ class OrderUpdateAPITest(APITestCase):
         )
 
     def test_business_can_update_order_status(self):
-
+        """
+        Verify that the business user associated with the order
+        can update its status.
+        """
         self.client.force_authenticate(
             user=self.business
         )
@@ -69,7 +83,9 @@ class OrderUpdateAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_update_order(self):
-
+        """
+        Verify that unauthenticated users cannot update an order.
+        """
         response = self.client.patch(
             f"/api/orders/{self.order.id}/",
             {
@@ -84,7 +100,9 @@ class OrderUpdateAPITest(APITestCase):
         )
 
     def test_customer_cannot_update_order(self):
-
+        """
+        Verify that customers cannot update an order.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -103,7 +121,10 @@ class OrderUpdateAPITest(APITestCase):
         )
 
     def test_other_business_cannot_update_foreign_order(self):
-
+        """
+        Verify that a different business user cannot update
+        an order that does not belong to them.
+        """
         self.client.force_authenticate(
             user=self.other_business
         )
@@ -122,7 +143,9 @@ class OrderUpdateAPITest(APITestCase):
         )
 
     def test_invalid_status_cannot_update_order(self):
-
+        """
+        Verify that an order cannot be updated with an invalid status.
+        """
         self.client.force_authenticate(
             user=self.business
         )
@@ -141,7 +164,10 @@ class OrderUpdateAPITest(APITestCase):
         )
 
     def test_order_not_found(self):
-
+        """
+        Verify that updating a non-existent order returns
+        a 404 response.
+        """
         self.client.force_authenticate(
             user=self.business
         )

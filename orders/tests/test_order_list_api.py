@@ -1,4 +1,3 @@
-from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 
@@ -7,9 +6,20 @@ from orders.models import Order
 
 
 class OrderListAPITest(APITestCase):
+    """
+    Test cases for retrieving the order list.
+
+    These tests verify authentication requirements and ensure that
+    customers and business users can only access orders related to them.
+    """
 
     def setUp(self):
+        """
+        Create the users and orders required for the test cases.
 
+        Two customers and one business user are created. Each customer
+        has a separate order associated with the same business user.
+        """
         self.customer = User.objects.create_user(
             username="customer@test.com",
             password="test123",
@@ -58,7 +68,9 @@ class OrderListAPITest(APITestCase):
         )
 
     def test_customer_can_see_own_orders(self):
-
+        """
+        Verify that a customer can retrieve their own orders.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -83,7 +95,9 @@ class OrderListAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_get_orders(self):
-
+        """
+        Verify that unauthenticated users cannot retrieve orders.
+        """
         response = self.client.get(
             "/api/orders/"
         )
@@ -94,7 +108,10 @@ class OrderListAPITest(APITestCase):
         )
 
     def test_customer_cannot_see_foreign_orders(self):
-
+        """
+        Verify that a customer cannot access orders belonging
+        to another customer.
+        """
         self.client.force_authenticate(
             user=self.customer
         )
@@ -113,9 +130,11 @@ class OrderListAPITest(APITestCase):
             order_ids
         )
 
-
     def test_business_can_see_own_orders(self):
-
+        """
+        Verify that a business user can retrieve all orders
+        associated with their business account.
+        """
         self.client.force_authenticate(
             user=self.business
         )
@@ -133,3 +152,4 @@ class OrderListAPITest(APITestCase):
             len(response.data),
             2
         )
+
