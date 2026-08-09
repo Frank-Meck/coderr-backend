@@ -1,6 +1,12 @@
-# offers/tests/test_offer_update_api.py
+"""
+API tests for updating offers.
+
+Tests offer updates, ownership permissions, authentication requirements,
+partial updates, and updating existing offer details.
+"""
 
 from django.urls import reverse
+
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
@@ -10,8 +16,14 @@ from offers.models import OfferDetail
 
 
 class OfferUpdateAPITest(APITestCase):
+    """
+    Test the offer update API endpoint.
+    """
 
     def setUp(self):
+        """
+        Create users, authentication tokens, an offer, and an offer detail.
+        """
 
         self.business_user = User.objects.create_user(
             username="business",
@@ -64,12 +76,13 @@ class OfferUpdateAPITest(APITestCase):
             }
         )
 
-
     def test_business_owner_can_update_offer(self):
+        """
+        Test that the business owner can update their own offer.
+        """
 
         self.client.credentials(
-            HTTP_AUTHORIZATION=
-            f"Token {self.business_token.key}"
+            HTTP_AUTHORIZATION=f"Token {self.business_token.key}"
         )
 
         response = self.client.patch(
@@ -92,12 +105,13 @@ class OfferUpdateAPITest(APITestCase):
             "Updated Grafikdesign Paket"
         )
 
-
     def test_non_owner_cannot_update_offer(self):
+        """
+        Test that a user who does not own the offer cannot update it.
+        """
 
         self.client.credentials(
-            HTTP_AUTHORIZATION=
-            f"Token {self.customer_token.key}"
+            HTTP_AUTHORIZATION=f"Token {self.customer_token.key}"
         )
 
         response = self.client.patch(
@@ -113,8 +127,10 @@ class OfferUpdateAPITest(APITestCase):
             403
         )
 
-
     def test_unauthenticated_user_cannot_update_offer(self):
+        """
+        Test that unauthenticated users cannot update an offer.
+        """
 
         response = self.client.patch(
             self.url,
@@ -129,12 +145,13 @@ class OfferUpdateAPITest(APITestCase):
             401
         )
 
-
     def test_update_non_existing_offer_returns_404(self):
+        """
+        Test that updating a non-existing offer returns a 404 response.
+        """
 
         self.client.credentials(
-            HTTP_AUTHORIZATION=
-            f"Token {self.business_token.key}"
+            HTTP_AUTHORIZATION=f"Token {self.business_token.key}"
         )
 
         response = self.client.patch(
@@ -150,12 +167,13 @@ class OfferUpdateAPITest(APITestCase):
             404
         )
 
-
     def test_patch_keeps_missing_fields_unchanged(self):
+        """
+        Test that fields not included in a PATCH request remain unchanged.
+        """
 
         self.client.credentials(
-            HTTP_AUTHORIZATION=
-            f"Token {self.business_token.key}"
+            HTTP_AUTHORIZATION=f"Token {self.business_token.key}"
         )
 
         response = self.client.patch(
@@ -178,12 +196,13 @@ class OfferUpdateAPITest(APITestCase):
             "Alte Beschreibung"
         )
 
-
     def test_patch_updates_existing_detail_and_keeps_id(self):
+        """
+        Test that an existing offer detail is updated without changing its ID.
+        """
 
         self.client.credentials(
-            HTTP_AUTHORIZATION=
-            f"Token {self.business_token.key}"
+            HTTP_AUTHORIZATION=f"Token {self.business_token.key}"
         )
 
         old_detail_id = self.detail.id

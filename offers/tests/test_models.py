@@ -1,3 +1,11 @@
+"""
+Tests for the offers API models.
+
+Tests the creation, relationships, default values, timestamps,
+string representations, and database constraints of offers
+and offer details.
+"""
+
 from django.test import TestCase
 from django.db import IntegrityError
 
@@ -6,8 +14,14 @@ from offers.models import Offer, OfferDetail
 
 
 class OfferModelTest(TestCase):
+    """
+    Test the Offer model.
+    """
 
     def setUp(self):
+        """
+        Create a business user for the offer tests.
+        """
 
         self.business_user = User.objects.create_user(
             username="business_user",
@@ -16,6 +30,9 @@ class OfferModelTest(TestCase):
         )
 
     def test_create_offer(self):
+        """
+        Test that an offer can be created with a business user.
+        """
 
         offer = Offer.objects.create(
             business=self.business_user,
@@ -34,6 +51,9 @@ class OfferModelTest(TestCase):
         )
 
     def test_offer_string_representation(self):
+        """
+        Test the string representation of an offer.
+        """
 
         offer = Offer.objects.create(
             business=self.business_user,
@@ -46,6 +66,9 @@ class OfferModelTest(TestCase):
         )
 
     def test_offer_optional_fields(self):
+        """
+        Test the default values of optional offer fields.
+        """
 
         offer = Offer.objects.create(
             business=self.business_user,
@@ -62,6 +85,9 @@ class OfferModelTest(TestCase):
         )
 
     def test_offer_timestamps_are_created(self):
+        """
+        Test that creation and update timestamps are set automatically.
+        """
 
         offer = Offer.objects.create(
             business=self.business_user,
@@ -78,8 +104,14 @@ class OfferModelTest(TestCase):
 
 
 class OfferDetailModelTest(TestCase):
+    """
+    Test the OfferDetail model.
+    """
 
     def setUp(self):
+        """
+        Create a business user and an offer for the detail tests.
+        """
 
         self.business_user = User.objects.create_user(
             username="business_user",
@@ -93,6 +125,9 @@ class OfferDetailModelTest(TestCase):
         )
 
     def test_create_offer_detail(self):
+        """
+        Test that an offer detail can be created successfully.
+        """
 
         detail = OfferDetail.objects.create(
             offer=self.offer,
@@ -118,6 +153,9 @@ class OfferDetailModelTest(TestCase):
         )
 
     def test_offer_has_multiple_details(self):
+        """
+        Test that an offer can have multiple details with different types.
+        """
 
         OfferDetail.objects.create(
             offer=self.offer,
@@ -141,6 +179,9 @@ class OfferDetailModelTest(TestCase):
         )
 
     def test_offer_detail_default_values(self):
+        """
+        Test the default values of revisions and features.
+        """
 
         detail = OfferDetail.objects.create(
             offer=self.offer,
@@ -161,6 +202,9 @@ class OfferDetailModelTest(TestCase):
         )
 
     def test_offer_detail_unique_offer_type_constraint(self):
+        """
+        Test that an offer cannot have duplicate detail types.
+        """
 
         OfferDetail.objects.create(
             offer=self.offer,
@@ -181,6 +225,9 @@ class OfferDetailModelTest(TestCase):
             )
 
     def test_offer_detail_string_representation(self):
+        """
+        Test the string representation of an offer detail.
+        """
 
         detail = OfferDetail.objects.create(
             offer=self.offer,
@@ -194,3 +241,4 @@ class OfferDetailModelTest(TestCase):
             str(detail),
             "Website Design - premium"
         )
+

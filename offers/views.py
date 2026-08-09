@@ -30,17 +30,45 @@ from offers.api.permissions import (
 from offers.api.serializers import (
     OfferSerializer,
     OfferCreateSerializer,
+    OfferCreateResponseSerializer,
     OfferUpdateSerializer,
+    OfferUpdateResponseSerializer,
+    OfferDetailResponseSerializer,
     OfferDetailSerializer,
 )
 
 
 class OfferListView(ListCreateAPIView):
+    """
+    List and create offers.
+
+    GET requests return a filtered and ordered list of offers.
+    POST requests allow authenticated business users to create a new offer.
+    """
 
     pagination_class = OfferPagination
     serializer_class = OfferSerializer
 
+    def get_serializer_class(self):
+        """
+        Return the serializer based on the current HTTP method.
+
+        POST requests use the offer creation serializer.
+        All other requests use the standard offer serializer.
+        """
+
+        if self.request.method == "POST":
+            return OfferCreateSerializer
+
+        return OfferSerializer
+
     def get_permissions(self):
+        """
+        Return permissions based on the current HTTP method.
+
+        Creating an offer requires the user to be a business user.
+        Listing offers is publicly accessible.
+        """
 
         if self.request.method == "POST":
             return [
@@ -51,29 +79,37 @@ class OfferListView(ListCreateAPIView):
             AllowAny()
         ]
 
-    def get_serializer_class(self):
-
-        if self.request.method == "POST":
-            return OfferCreateSerializer
-
-        return OfferSerializer
-
     def get_queryset(self):
+        """
+        Return the offer queryset with optional filtering and ordering.
+
+        The queryset supports filtering by creator, minimum price,
+        maximum delivery time, and search terms. Results can also be
+        ordered by update date or minimum offer price.
+        """
 
         queryset = Offer.objects.annotate(
-            min_price_value=Min("details__price")
+            min_price_value=Min(
+                "details__price"
+            )
         )
 
-        creator_id = self.request.query_params.get("creator_id")
+        creator_id = self.request.query_params.get(
+            "creator_id"
+        )
 
         if creator_id:
+
             try:
-                creator_id = int(creator_id)
+                creator_id = int(
+                    creator_id
+                )
 
             except ValueError:
                 raise ValidationError(
                     {
-                        "creator_id": "A valid integer is required."
+                        "creator_id":
+                        "A valid integer is required."
                     }
                 )
 
@@ -86,13 +122,17 @@ class OfferListView(ListCreateAPIView):
         )
 
         if min_price:
+
             try:
-                min_price = Decimal(min_price)
+                min_price = Decimal(
+                    min_price
+                )
 
             except InvalidOperation:
                 raise ValidationError(
                     {
-                        "min_price": "A valid number is required."
+                        "min_price":
+                        "A valid number is required."
                     }
                 )
 
@@ -100,8 +140,10 @@ class OfferListView(ListCreateAPIView):
                 details__price__gte=min_price
             ).distinct()
 
-        max_delivery_time = self.request.query_params.get(
-            "max_delivery_time"
+        max_delivery_time = (
+            self.request.query_params.get(
+                "max_delivery_time"
+            )
         )
 
         if max_delivery_time:
@@ -114,7 +156,8 @@ class OfferListView(ListCreateAPIView):
             except ValueError:
                 raise ValidationError(
                     {
-                        "max_delivery_time": "A valid integer is required."
+                        "max_delivery_time":
+                        "A valid integer is required."
                     }
                 )
 
@@ -127,6 +170,7 @@ class OfferListView(ListCreateAPIView):
         )
 
         if search:
+
             queryset = queryset.filter(
                 Q(title__icontains=search)
                 | Q(description__icontains=search)
@@ -142,6 +186,7 @@ class OfferListView(ListCreateAPIView):
                 "updated_at",
                 "-updated_at",
             ]:
+
                 queryset = queryset.order_by(
                     ordering
                 )
@@ -149,7 +194,9 @@ class OfferListView(ListCreateAPIView):
             elif ordering == "min_price":
 
                 queryset = queryset.order_by(
-                    F("min_price_value").asc(
+                    F(
+                        "min_price_value"
+                    ).asc(
                         nulls_last=True
                     )
                 )
@@ -157,15 +204,19 @@ class OfferListView(ListCreateAPIView):
             elif ordering == "-min_price":
 
                 queryset = queryset.order_by(
-                    F("min_price_value").desc(
+                    F(
+                        "min_price_value"
+                    ).desc(
                         nulls_last=True
                     )
                 )
 
             else:
+
                 raise ValidationError(
                     {
-                        "ordering": "Invalid ordering value."
+                        "ordering":
+                        "Invalid ordering value."
                     }
                 )
 
@@ -183,6 +234,13 @@ class OfferListView(ListCreateAPIView):
         *args,
         **kwargs
     ):
+        """
+        Create a new offer and return the created offer data.
+
+        The request data is validated using the creation serializer.
+        A dedicated response serializer is used to return the created
+        offer together with the request context.
+        """
 
         serializer = self.get_serializer(
             data=request.data
@@ -194,11 +252,13 @@ class OfferListView(ListCreateAPIView):
 
         offer = serializer.save()
 
-        response_serializer = OfferSerializer(
-            offer,
-            context={
-                "request": request
-            }
+        response_serializer = (
+            OfferCreateResponseSerializer(
+                offer,
+                context={
+                    "request": request
+                }
+            )
         )
 
         return Response(
@@ -207,22 +267,54 @@ class OfferListView(ListCreateAPIView):
         )
 
 
-class OfferDetailView(RetrieveUpdateDestroyAPIView):
+class OfferDetailView(
+    RetrieveUpdateDestroyAPIView
+):
+    """
+    Retrieve, update, or delete a single offer.
+
+    Offers can be retrieved by authenticated users.
+    Updating or deleting an offer requires the requesting user
+    to be the owner of the offer.
+    """
 
     queryset = Offer.objects.all()
 
-    permission_classes = [
-        IsAuthenticated,
-        IsOfferOwner,
-    ]
+    def get_permissions(self):
+        """
+        Return permissions based on the current HTTP method.
+
+        PATCH and DELETE requests require authentication and offer
+        ownership. GET requests only require authentication.
+        """
+
+        if self.request.method in [
+            "PATCH",
+            "DELETE",
+        ]:
+
+            return [
+                IsAuthenticated(),
+                IsOfferOwner(),
+            ]
+
+        return [
+            IsAuthenticated(),
+        ]
 
     def get_serializer_class(self):
+        """
+        Return the appropriate serializer for the current request.
+
+        PATCH requests use the update serializer.
+        Other requests use the detailed response serializer.
+        """
 
         if self.request.method == "PATCH":
 
             return OfferUpdateSerializer
 
-        return OfferSerializer
+        return OfferDetailResponseSerializer
 
     def update(
         self,
@@ -230,6 +322,13 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         *args,
         **kwargs
     ):
+        """
+        Update an existing offer and return the updated offer data.
+
+        The request data is validated using the update serializer.
+        A dedicated response serializer is used to return the updated
+        offer.
+        """
 
         partial = kwargs.pop(
             "partial",
@@ -252,11 +351,13 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
             serializer
         )
 
-        response_serializer = OfferSerializer(
-            serializer.instance,
-            context={
-                "request": request
-            }
+        response_serializer = (
+            OfferUpdateResponseSerializer(
+                serializer.instance,
+                context={
+                    "request": request
+                }
+            )
         )
 
         return Response(
@@ -264,7 +365,14 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         )
 
 
-class OfferDetailDetailView(RetrieveAPIView):
+class OfferDetailDetailView(
+    RetrieveAPIView
+):
+    """
+    Retrieve a single offer detail.
+
+    Access to individual offer details requires authentication.
+    """
 
     queryset = OfferDetail.objects.all()
 

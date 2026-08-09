@@ -1,5 +1,12 @@
+"""
+API tests for listing offers.
+
+Tests offer listing, pagination, response fields, filtering,
+searching, and ordering of offers.
+"""
 
 from django.urls import reverse
+
 from rest_framework.test import APITestCase
 from rest_framework import status
 
@@ -8,8 +15,14 @@ from offers.models import Offer, OfferDetail
 
 
 class OfferListAPITest(APITestCase):
+    """
+    Test the offer list API endpoint.
+    """
 
     def setUp(self):
+        """
+        Create business users, offers, and an offer detail for the tests.
+        """
 
         self.business_user = User.objects.create_user(
             username="business1",
@@ -44,6 +57,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_list(self):
+        """
+        Test that the offer list endpoint returns a successful response.
+        """
 
         url = reverse("offer-list")
 
@@ -55,6 +71,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_created_offer(self):
+        """
+        Test that the created offer is included in the offer list.
+        """
 
         url = reverse("offer-list")
 
@@ -78,6 +97,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_uses_pagination(self):
+        """
+        Test that the offer list response contains pagination fields.
+        """
 
         url = reverse("offer-list")
 
@@ -99,6 +121,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_basic_fields(self):
+        """
+        Test that offers contain their basic response fields.
+        """
 
         url = reverse("offer-list")
 
@@ -132,6 +157,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_user(self):
+        """
+        Test that the offer response contains the business user ID.
+        """
 
         url = reverse("offer-list")
 
@@ -150,6 +178,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_image(self):
+        """
+        Test that the offer response contains the image field.
+        """
 
         url = reverse("offer-list")
 
@@ -168,6 +199,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_details(self):
+        """
+        Test that the offer response contains its associated details.
+        """
 
         url = reverse("offer-list")
 
@@ -186,6 +220,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_min_price(self):
+        """
+        Test that the response contains the minimum offer price.
+        """
 
         url = reverse("offer-list")
 
@@ -204,6 +241,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_min_delivery_time(self):
+        """
+        Test that the response contains the minimum delivery time.
+        """
 
         url = reverse("offer-list")
 
@@ -222,21 +262,45 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_contains_user_details(self):
+        """
+        Test that the response contains basic business user details.
+        """
+
         url = reverse("offer-list")
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         offer = response.data["results"][0]
 
-        self.assertIn("user_details", offer)
+        self.assertIn(
+            "user_details",
+            offer
+        )
 
-        self.assertIn("first_name", offer["user_details"])
-        self.assertIn("last_name", offer["user_details"])
-        self.assertIn("username", offer["user_details"])
+        self.assertIn(
+            "first_name",
+            offer["user_details"]
+        )
+
+        self.assertIn(
+            "last_name",
+            offer["user_details"]
+        )
+
+        self.assertIn(
+            "username",
+            offer["user_details"]
+        )
 
     def test_get_offers_filters_by_creator_id(self):
+        """
+        Test that offers can be filtered by business user ID.
+        """
 
         url = reverse("offer-list")
 
@@ -247,11 +311,17 @@ class OfferListAPITest(APITestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            len(results),
+            1
+        )
 
         self.assertEqual(
             results[0]["user"],
@@ -259,6 +329,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_filters_by_min_price(self):
+        """
+        Test that offers can be filtered by minimum price.
+        """
 
         response = self.client.get(
             "/api/offers/",
@@ -267,13 +340,22 @@ class OfferListAPITest(APITestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 0)
+        self.assertEqual(
+            len(results),
+            0
+        )
 
     def test_get_offers_filters_by_max_delivery_time(self):
+        """
+        Test that offers can be filtered by maximum delivery time.
+        """
 
         response = self.client.get(
             "/api/offers/",
@@ -282,13 +364,22 @@ class OfferListAPITest(APITestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 0)
+        self.assertEqual(
+            len(results),
+            0
+        )
 
     def test_get_offers_searches_title_and_description(self):
+        """
+        Test that offers can be searched by title or description.
+        """
 
         response = self.client.get(
             "/api/offers/",
@@ -297,11 +388,17 @@ class OfferListAPITest(APITestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         results = response.data["results"]
 
-        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            len(results),
+            1
+        )
 
         self.assertEqual(
             results[0]["title"],
@@ -309,6 +406,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_orders_by_updated_at(self):
+        """
+        Test that offers can be ordered by their update timestamp.
+        """
 
         older_offer = Offer.objects.create(
             business=self.business_user,
@@ -329,7 +429,10 @@ class OfferListAPITest(APITestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         results = response.data["results"]
 
@@ -339,6 +442,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_orders_by_min_price(self):
+        """
+        Test that offers can be ordered by their minimum price.
+        """
 
         cheap_offer = Offer.objects.create(
             business=self.business_user,
@@ -379,9 +485,18 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_default_ordering(self):
-        response = self.client.get("/api/offers/")
+        """
+        Test that offers use the default ordering when no ordering is specified.
+        """
 
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(
+            "/api/offers/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
 
         results = response.data["results"]
 
@@ -391,6 +506,9 @@ class OfferListAPITest(APITestCase):
         )
 
     def test_get_offers_with_page_size(self):
+        """
+        Test that the page size can be customized using a query parameter.
+        """
 
         response = self.client.get(
             "/api/offers/?page_size=2"

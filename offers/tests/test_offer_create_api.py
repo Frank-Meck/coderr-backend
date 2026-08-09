@@ -1,3 +1,10 @@
+"""
+API tests for creating offers.
+
+Tests offer creation, response data, authentication, user permissions,
+validation of offer details, and validation of offer types.
+"""
+
 from django.urls import reverse
 
 from rest_framework import status
@@ -8,8 +15,14 @@ from offers.models import Offer
 
 
 class OfferCreateAPITest(APITestCase):
+    """
+    Test the offer creation API endpoint.
+    """
 
     def setUp(self):
+        """
+        Create and authenticate a business user for the API tests.
+        """
 
         self.business_user = User.objects.create_user(
             username="business",
@@ -22,6 +35,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_business_user_can_create_offer(self):
+        """
+        Test that an authenticated business user can create an offer.
+        """
 
         url = reverse("offer-list")
 
@@ -89,6 +105,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_business_user_receives_created_offer_with_details(self):
+        """
+        Test that the creation response contains the created offer and details.
+        """
 
         url = reverse("offer-list")
 
@@ -151,6 +170,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_create_offer(self):
+        """
+        Test that unauthenticated users cannot create offers.
+        """
 
         self.client.force_authenticate(
             user=None
@@ -170,6 +192,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def get_valid_offer_data(self):
+        """
+        Return valid data for creating an offer.
+        """
 
         return {
             "title": "Test Offer",
@@ -204,6 +229,9 @@ class OfferCreateAPITest(APITestCase):
         }
 
     def test_non_business_user_cannot_create_offer(self):
+        """
+        Test that authenticated customer users cannot create offers.
+        """
 
         user = User.objects.create_user(
             username="customer",
@@ -229,6 +257,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_offer_creation_requires_exactly_three_details(self):
+        """
+        Test that an offer must contain exactly three details.
+        """
 
         url = reverse("offer-list")
 
@@ -248,6 +279,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_offer_creation_rejects_duplicate_offer_types(self):
+        """
+        Test that duplicate offer types are rejected during creation.
+        """
 
         url = reverse("offer-list")
 
@@ -267,6 +301,9 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_offer_creation_rejects_invalid_offer_type(self):
+        """
+        Test that invalid offer types are rejected during creation.
+        """
 
         url = reverse("offer-list")
 
@@ -286,7 +323,13 @@ class OfferCreateAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_create_offer(self):
-        self.client.force_authenticate(user=None)
+        """
+        Test that unauthenticated users cannot create offers.
+        """
+
+        self.client.force_authenticate(
+            user=None
+        )
 
         response = self.client.post(
             reverse("offer-list"),
@@ -298,3 +341,4 @@ class OfferCreateAPITest(APITestCase):
             response.status_code,
             status.HTTP_401_UNAUTHORIZED
         )
+
