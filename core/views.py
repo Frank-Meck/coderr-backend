@@ -11,8 +11,18 @@ from offers.models import Offer
 
 
 class BaseInfoView(APIView):
+    """
+    Provides general information and statistics for the platform.
+    """
 
     def get(self, request):
+        """
+        Returns aggregated platform statistics.
+
+        The response includes the total number of reviews,
+        the average review rating, the number of business profiles,
+        and the total number of offers.
+        """
 
         review_count = Review.objects.count()
 
@@ -44,3 +54,4 @@ class BaseInfoView(APIView):
         serializer = BaseInfoSerializer(data)
 
         return Response(serializer.data)
+
