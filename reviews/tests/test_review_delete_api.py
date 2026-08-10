@@ -8,35 +8,44 @@ from reviews.models import Review
 
 
 class ReviewDeleteAPITest(APITestCase):
+    """
+    Test suite for deleting reviews through the review API.
+    """
 
     def setUp(self):
+        """
+        Creates test users and a review for the test cases.
+        """
 
         self.customer = User.objects.create_user(
             username="customer",
             password="password123",
-            type="customer"
+            type="customer",
         )
 
         self.other_customer = User.objects.create_user(
             username="other_customer",
             password="password123",
-            type="customer"
+            type="customer",
         )
 
         self.business = User.objects.create_user(
             username="business",
             password="password123",
-            type="business"
+            type="business",
         )
 
         self.review = Review.objects.create(
             business=self.business,
             reviewer=self.customer,
             rating=5,
-            description="Great service"
+            description="Great service",
         )
 
     def test_reviewer_can_delete_own_review(self):
+        """
+        Verifies that a reviewer can delete their own review.
+        """
 
         self.client.force_authenticate(
             user=self.customer
@@ -45,15 +54,15 @@ class ReviewDeleteAPITest(APITestCase):
         url = reverse(
             "review-delete",
             kwargs={
-                "pk": self.review.id
-            }
+                "pk": self.review.id,
+            },
         )
 
         response = self.client.delete(url)
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_204_NO_CONTENT
+            status.HTTP_204_NO_CONTENT,
         )
 
         self.assertFalse(
@@ -63,22 +72,28 @@ class ReviewDeleteAPITest(APITestCase):
         )
 
     def test_unauthenticated_user_cannot_delete_review(self):
+        """
+        Verifies that an unauthenticated user cannot delete a review.
+        """
 
         url = reverse(
             "review-delete",
             kwargs={
-                "pk": self.review.id
-            }
+                "pk": self.review.id,
+            },
         )
 
         response = self.client.delete(url)
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_401_UNAUTHORIZED
+            status.HTTP_401_UNAUTHORIZED,
         )
 
     def test_other_customer_cannot_delete_review(self):
+        """
+        Verifies that a customer cannot delete another customer's review.
+        """
 
         self.client.force_authenticate(
             user=self.other_customer
@@ -87,18 +102,21 @@ class ReviewDeleteAPITest(APITestCase):
         url = reverse(
             "review-delete",
             kwargs={
-                "pk": self.review.id
-            }
+                "pk": self.review.id,
+            },
         )
 
         response = self.client.delete(url)
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_403_FORBIDDEN
+            status.HTTP_403_FORBIDDEN,
         )
 
     def test_business_user_cannot_delete_review(self):
+        """
+        Verifies that a business user cannot delete a review.
+        """
 
         self.client.force_authenticate(
             user=self.business
@@ -107,18 +125,21 @@ class ReviewDeleteAPITest(APITestCase):
         url = reverse(
             "review-delete",
             kwargs={
-                "pk": self.review.id
-            }
+                "pk": self.review.id,
+            },
         )
 
         response = self.client.delete(url)
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_403_FORBIDDEN
+            status.HTTP_403_FORBIDDEN,
         )
 
     def test_delete_non_existing_review_returns_404(self):
+        """
+        Verifies that deleting a non-existent review returns a 404 response.
+        """
 
         self.client.force_authenticate(
             user=self.customer
@@ -127,13 +148,13 @@ class ReviewDeleteAPITest(APITestCase):
         url = reverse(
             "review-delete",
             kwargs={
-                "pk": 9999
-            }
+                "pk": 9999,
+            },
         )
 
         response = self.client.delete(url)
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         )
