@@ -6,6 +6,7 @@ including pricing, delivery times, revisions, and features.
 """
 
 from django.db import models
+from django.core.validators import MinValueValidator
 
 from users.models import User
 
@@ -96,8 +97,11 @@ class OfferDetail(models.Model):
 
     delivery_time_in_days = models.PositiveIntegerField()
 
-    revisions = models.PositiveIntegerField(
-        default=0
+    revisions = models.IntegerField(
+        default=0,
+        validators=[
+            MinValueValidator(-1)
+        ]
     )
 
     features = models.JSONField(
@@ -130,4 +134,3 @@ class OfferDetail(models.Model):
         """
 
         return f"{self.offer.title} - {self.offer_type}"
-
